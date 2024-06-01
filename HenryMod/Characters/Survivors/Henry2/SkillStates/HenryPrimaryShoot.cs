@@ -1,6 +1,7 @@
 ﻿using EntityStates;
 using EntityStates.Commando.CommandoWeapon;
 using RoR2;
+using System;
 using UnityEngine;
 using static RoR2.BulletAttack;
 
@@ -13,7 +14,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
         public static float damageCoefficient = Henry2StaticValues.primaryGunDamageCoefficient;
         public static float procCoefficient = 1f;
         public static float baseDuration = 0.6f;
-        public static float firePercentTime = 0.0f;
+        public static float firePercentTime = 0.2f;
         public static float force = 800f;
         public static float recoil = 3f;
         public static float range = 256f;
@@ -95,6 +96,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
                 spreadYawScale = 0f,
                 queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                 hitEffectPrefab = FirePistol2.hitEffectPrefab,
+                hitCallback = HenryHitCallback
             };
 
             bulletAtk.Fire();
@@ -102,15 +104,19 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
 
         private bool HenryHitCallback(BulletAttack bulletAttackRef, ref BulletHit hitInfo)
         {
-            if (hitInfo.point != null && bulletAttackRef.owner != null)
+            if (hitInfo.point != null && hitInfo.hitHurtBox != null && bulletAttackRef.owner != null)
             {
+                MonoBehaviour.print("[hitInfo.hitHurtBox]");
+                MonoBehaviour.print(hitInfo.hitHurtBox);
                 CharacterBody attackerBody = bulletAttackRef.owner.GetComponent<CharacterBody>();
 
                 if (attackerBody != null)
                 {
-                    attackerBody.skillLocator.GetSkill(SkillSlot.Secondary).rechargeStopwatch += Henry2StaticValues.primaryAttackCDRInSeconds;
-                    attackerBody.skillLocator.GetSkill(SkillSlot.Utility).rechargeStopwatch += Henry2StaticValues.primaryAttackCDRInSeconds;
-                    attackerBody.skillLocator.GetSkill(SkillSlot.Special).rechargeStopwatch += Henry2StaticValues.primaryAttackCDRInSeconds;
+                    foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
+                    {
+                        attackerBody.skillLocator.GetSkill(item)?.RunRecharge(Henry2StaticValues.primaryAttackCDRInSeconds);
+                    }
+
                 }
 
             }

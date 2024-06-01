@@ -243,7 +243,17 @@ namespace Henry2Mod.Survivors.Henry
             primarySkillDef1.stepCount = 2;
             primarySkillDef1.stepGraceDuration = 0.5f;
 
-            Skills.AddPrimarySkills(bodyPrefab, primarySkillDef1);
+            //here is a basic skill def with all fields accounted for
+            m_primarySkill = Skills.CreateSkillDef(new SkillDefInfo
+                (
+                "HenryPrimaryGun",
+                HENRY_PREFIX + "PRIMARY_GUN_NAME",
+                HENRY_PREFIX + "PRIMARY_GUN_DESCRIPTION",
+                assetBundle.LoadAsset<Sprite>("texPistolIcon"),
+                new EntityStates.SerializableEntityStateType(typeof(SkillStates.HenryPrimaryShoot)))
+            );
+
+            Skills.AddPrimarySkills(bodyPrefab, m_primarySkill);
         }
 
         private void AddSecondarySkills()
@@ -263,7 +273,7 @@ namespace Henry2Mod.Survivors.Henry
                 activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 0.5f,
+                baseRechargeInterval = 3.0f,
                 baseMaxStock = 5,
 
                 rechargeStock = 1,
@@ -442,44 +452,6 @@ namespace Henry2Mod.Survivors.Henry
         private void AddHooks()
         {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
-            On.RoR2.GlobalEventManager.OnHitEnemy += (original, self, damageInfo, victim) =>
-            {
-                original(self, damageInfo, victim);
-                MonoBehaviour.print("[[Enemy hit detected]]");
-
-                MonoBehaviour.print("[original]");
-                MonoBehaviour.print(original);
-                if (!NetworkServer.active) return;
-
-                MonoBehaviour.print("[damageInfo]");
-                MonoBehaviour.print(damageInfo);
-                MonoBehaviour.print("[damageInfo.attacker]");
-                MonoBehaviour.print(damageInfo.attacker);
-                MonoBehaviour.print("[victim]");
-                MonoBehaviour.print(victim);
-
-                if (damageInfo == null || damageInfo.attacker == null || victim == null) return;
-
-                CharacterBody attackerBody = damageInfo.attacker.GetComponent<CharacterBody>();
-                CharacterBody victimBody = victim.GetComponent<CharacterBody>();
-
-                if (attackerBody == null || victimBody == null) return;
-
-                MonoBehaviour.print("Attempting to add stock");
-                MonoBehaviour.print("[attackerBody]");
-                MonoBehaviour.print(attackerBody);
-                MonoBehaviour.print("[attackerBody.skillLocator]");
-                MonoBehaviour.print(attackerBody.skillLocator);
-                MonoBehaviour.print("[attackerBody.skillLocator.FindSkillByDef(m_secondarySkill])");
-                MonoBehaviour.print(attackerBody.skillLocator.FindSkillByDef(m_secondarySkill));
-                var secondarySkill = attackerBody.skillLocator.FindSkillByDef(m_secondarySkill);
-
-                if (secondarySkill == null) return;
-                secondarySkill.ApplyAmmoPack();
-            };
-
-
-
         }
 
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args)

@@ -46,6 +46,11 @@ namespace Henry2Mod.Survivors.Henry
             #endregion
 
             #region Primary
+            Language.Add(prefix + "PRIMARY_GUN_NAME", "Gun");
+            Language.Add(prefix + "PRIMARY_GUN_DESCRIPTION", $"Fire your gun, dealing <style=cIsDamage>{100f * Henry2StaticValues.primaryGunDamageCoefficient}% damage and reducing cooldowns by {Henry2StaticValues.primaryAttackCDRInSeconds}</style>.");
+            #endregion
+
+            #region Primary2
             Language.Add(prefix + "PRIMARY_SLASH_NAME", "Sword");
             Language.Add(prefix + "PRIMARY_SLASH_DESCRIPTION", Tokens.agilePrefix + $"Swing forward for <style=cIsDamage>{100f * Henry2StaticValues.swordDamageCoefficient}% damage</style>.");
             #endregion

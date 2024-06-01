@@ -8,7 +8,7 @@ namespace Henry2Mod.Survivors.Henry
 
         public const float primaryGunDamageCoefficient = 4.2f;
 
-        public const float primaryAttackCDRInSeconds = 16f;
+        public const float primaryAttackCDRInSeconds = 1.0f;
 
         public const float multiShotGunDamageCoefficient = primaryGunDamageCoefficient / 3.0f;
 
