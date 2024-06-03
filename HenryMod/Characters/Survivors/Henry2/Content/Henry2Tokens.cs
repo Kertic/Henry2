@@ -42,12 +42,12 @@ namespace Henry2Mod.Survivors.Henry
 
             #region Passive
             Language.Add(prefix + "PASSIVE_NAME", "Henry passive");
-            Language.Add(prefix + "PASSIVE_DESCRIPTION", "Primary attacks add stacks of your secondary attack");
+            Language.Add(prefix + "PASSIVE_DESCRIPTION", "Primary attacks reduce the cooldown of your abilities");
             #endregion
 
             #region Primary
             Language.Add(prefix + "PRIMARY_GUN_NAME", "Gun");
-            Language.Add(prefix + "PRIMARY_GUN_DESCRIPTION", $"Fire your gun, dealing <style=cIsDamage>{100f * Henry2StaticValues.primaryGunDamageCoefficient}% damage and reducing cooldowns by {Henry2StaticValues.primaryAttackCDRInSeconds}</style>.");
+            Language.Add(prefix + "PRIMARY_GUN_DESCRIPTION", $"Fire your gun, dealing <style=cIsDamage>{100f * Henry2StaticValues.primaryGunDamageCoefficient}% damage and reducing cooldowns by {Henry2StaticValues.primaryAttackCDRInSeconds} seconds</style>.");
             #endregion
 
             #region Primary2

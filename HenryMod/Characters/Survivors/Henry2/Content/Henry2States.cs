@@ -8,6 +8,8 @@ namespace Henry2Mod.Survivors.Henry
         {
             Modules.Content.AddEntityState(typeof(SlashCombo));
 
+            Modules.Content.AddEntityState(typeof(HenryPrimaryShoot));
+
             Modules.Content.AddEntityState(typeof(MultiShot));
 
             Modules.Content.AddEntityState(typeof(Roll));

@@ -9,6 +9,7 @@ using RoR2.Skills;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace Henry2Mod.Survivors.Henry
@@ -85,6 +86,7 @@ namespace Henry2Mod.Survivors.Henry
         public override GameObject characterModelObject { get; protected set; }
         public override CharacterModel prefabCharacterModel { get; protected set; }
         public override GameObject displayPrefab { get; protected set; }
+        public GameObject voidHudObject { get; protected set; }
         private SkillDef m_primarySkill;
         private SkillDef m_secondarySkill;
         private SkillDef m_utilitySkill;
@@ -152,6 +154,7 @@ namespace Henry2Mod.Survivors.Henry
 
             Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon");
             Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon2");
+            Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon3");
         }
 
         #region skills
@@ -254,6 +257,7 @@ namespace Henry2Mod.Survivors.Henry
             );
 
             Skills.AddPrimarySkills(bodyPrefab, m_primarySkill);
+            Skills.AddPrimarySkills(bodyPrefab, primarySkillDef1);
         }
 
         private void AddSecondarySkills()
@@ -273,7 +277,7 @@ namespace Henry2Mod.Survivors.Henry
                 activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 3.0f,
+                baseRechargeInterval = 1f,
                 baseMaxStock = 5,
 
                 rechargeStock = 1,
@@ -347,12 +351,16 @@ namespace Henry2Mod.Survivors.Henry
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.ThrowBomb)),
-                //setting this to the "weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon2",
+                //setting this to the "weapon3" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
+                activationStateMachineName = "Weapon3",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseMaxStock = 1,
                 baseRechargeInterval = 10f,
+                baseMaxStock = 1,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
 
                 isCombatSkill = true,
                 mustKeyPress = false,
@@ -452,6 +460,7 @@ namespace Henry2Mod.Survivors.Henry
         private void AddHooks()
         {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
+            On.RoR2.UI.HUD.Awake += HUD_Awake;
         }
 
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args)
@@ -460,6 +469,46 @@ namespace Henry2Mod.Survivors.Henry
             if (sender.HasBuff(Henry2Buffs.armorBuff))
             {
                 args.armorAdd += 300;
+            }
+        }
+
+        private void HUD_Awake(On.RoR2.UI.HUD.orig_Awake orig, RoR2.UI.HUD self)
+        {
+            CreateResourceGauge(self);
+            orig(self);
+        }
+
+        private void CreateResourceGauge(RoR2.UI.HUD hud)
+        {
+            if (voidHudObject) return;
+
+            return;
+
+            Log.Debug("[ResourceGaugeMake]");
+            voidHudObject = new GameObject();
+            voidHudObject.transform.SetParent(hud.mainUIPanel.transform);
+            var rectTransform = voidHudObject.GetComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.sizeDelta = new Vector2(120, 120);
+            rectTransform.anchoredPosition = new Vector2(-619, -478);
+            rectTransform.localRotation = Quaternion.Euler(0, 354, 0);
+            rectTransform.localScale = new Vector3(1, 1, 1);
+        }
+        private void HUD_onHudTargetChangedGlobal(RoR2.UI.HUD obj)
+        {
+            if (obj && obj.targetBodyObject && voidHudObject)
+            {
+                var grit = obj.targetBodyObject.GetComponentByName(voidHudObject.name);
+                if (grit)
+                {
+                    voidHudObject.gameObject.SetActive(true);
+                }
+                else
+                {
+                    voidHudObject.gameObject.SetActive(true);
+                }
             }
         }
     }

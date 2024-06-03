@@ -48,7 +48,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
 
             if (fixedAge >= beginFireTime)
             {
-                if(fixedAge >= (timePerShot * totalShotsFired))
+                if (fixedAge >= (timePerShot * totalShotsFired))
                 {
                     Fire();
                 }
@@ -75,7 +75,6 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
                 if (isAuthority)
                 {
                     Ray aimRay = GetAimRay();
-                    AddRecoil(-1f * recoil, -2f * recoil, -0.5f * recoil, 0.5f * recoil);
                     new BulletAttack
                     {
                         bulletCount = 1,
@@ -106,6 +105,12 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
                         queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                         hitEffectPrefab = EntityStates.Commando.CommandoWeapon.FirePistol2.hitEffectPrefab,
                     }.Fire();
+
+
+                    if (totalShotsFired == totalShots)
+                    {
+                        AddRecoil(-1f * recoil, -2f * recoil, -0.5f * recoil, 0.5f * recoil);
+                    }
                 }
             }
         }

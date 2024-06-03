@@ -10,7 +10,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
     {
         public static float BaseDuration = 0.65f;
         //delays for projectiles feel absolute ass so only do this if you know what you're doing, otherwise it's best to keep it at 0
-        public static float BaseDelayDuration = 0.0f;
+        public static float BaseDelayDuration = 2.0f;
 
         public static float DamageCoefficient = 16f;
 
@@ -35,6 +35,8 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
 
             recoilAmplitude = 0.1f;
             bloom = 10;
+
+            characterBody.AddTimedBuff(RoR2Content.Buffs.Slow50, BaseDelayDuration);
 
             base.OnEnter();
         }

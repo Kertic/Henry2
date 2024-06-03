@@ -13,8 +13,8 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
 
         public static float damageCoefficient = Henry2StaticValues.primaryGunDamageCoefficient;
         public static float procCoefficient = 1f;
-        public static float baseDuration = 0.6f;
-        public static float firePercentTime = 0.2f;
+        public static float baseDuration = 1.5f;
+        public static float firePercentTime = 0.0f;
         public static float force = 800f;
         public static float recoil = 3f;
         public static float range = 256f;
@@ -33,6 +33,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             beginFireTime = firePercentTime * totalDuration;
             characterBody.SetAimTimer(2f);
             muzzleString = "Muzzle";
+            characterBody.AddTimedBuff(RoR2Content.Buffs.Slow50, beginFireTime);
 
             PlayAnimation("LeftArm, Override", "ShootGun", "ShootGun.playbackRate", 1.8f);
         }
@@ -66,7 +67,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             hasFired = true;
             Ray aimRay = GetAimRay();
             AddRecoil(-1f * recoil, -2f * recoil, -0.5f * recoil, 0.5f * recoil);
-            Util.PlaySound(FireBarrage.fireBarrageSoundString, gameObject);
+            Util.PlaySound("Play_voidman_m1_corrupted_end", gameObject);
             var bulletAtk = new BulletAttack
             {
                 bulletCount = 1,
