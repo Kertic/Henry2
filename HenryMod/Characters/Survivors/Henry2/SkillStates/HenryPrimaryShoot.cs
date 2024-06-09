@@ -1,4 +1,4 @@
-﻿using EntityStates;
+using EntityStates;
 using EntityStates.Commando.CommandoWeapon;
 using RoR2;
 using System;
@@ -33,8 +33,6 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             beginFireTime = firePercentTime * totalDuration;
             characterBody.SetAimTimer(2f);
             muzzleString = "Muzzle";
-            characterBody.AddTimedBuff(RoR2Content.Buffs.Slow50, beginFireTime);
-
             PlayAnimation("LeftArm, Override", "ShootGun", "ShootGun.playbackRate", 1.8f);
         }
 

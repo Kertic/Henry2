@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using Henry2Mod;
 using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
@@ -274,6 +274,8 @@ namespace Henry2Mod.Survivors.Henry
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.MultiShot)),
+
+                //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
                 activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
@@ -316,8 +318,8 @@ namespace Henry2Mod.Survivors.Henry
                 activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
-                baseRechargeInterval = 4f,
-                baseMaxStock = 1,
+                baseRechargeInterval = 10f,
+                baseMaxStock = 2,
 
                 rechargeStock = 1,
                 requiredStock = 1,
@@ -351,8 +353,7 @@ namespace Henry2Mod.Survivors.Henry
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.ThrowBomb)),
-                //setting this to the "weapon3" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon3",
+                activationStateMachineName = "Weapon",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 10f,
@@ -364,6 +365,7 @@ namespace Henry2Mod.Survivors.Henry
 
                 isCombatSkill = true,
                 mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
             });
 
             Skills.AddSpecialSkills(bodyPrefab, specialSkillDef1);

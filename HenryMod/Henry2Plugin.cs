@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using EntityStates;
 using Henry2Mod.Modules;
 using Henry2Mod.Survivors.Henry;
@@ -75,7 +75,7 @@ namespace Henry2Mod
             //Check step 2 for the code of the CustomSkillsTutorial.MyEntityStates.SimpleBulletAttack class
 
 
-            mySkillDef.activationState = new SerializableEntityStateType(typeof(HenryPrimaryShoot));
+            mySkillDef.activationState = new SerializableEntityStateType(typeof(ChargeArrow));
 
 
             mySkillDef.activationStateMachineName = "Weapon";
@@ -85,7 +85,7 @@ namespace Henry2Mod
             mySkillDef.canceledFromSprinting = false;
             mySkillDef.cancelSprintingOnActivation = true;
             mySkillDef.fullRestockOnAssign = true;
-            mySkillDef.interruptPriority = InterruptPriority.Any;
+            mySkillDef.interruptPriority = InterruptPriority.Skill;
             mySkillDef.isCombatSkill = true;
             mySkillDef.mustKeyPress = false;
             mySkillDef.rechargeStock = 1;

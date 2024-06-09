@@ -1,4 +1,4 @@
-﻿using EntityStates;
+using EntityStates;
 using Henry2Mod.Survivors.Henry;
 using RoR2;
 using RoR2.Projectile;
@@ -8,9 +8,9 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
 {
     public class ThrowBomb : GenericProjectileBaseState
     {
-        public static float BaseDuration = 0.65f;
+        public static float BaseDuration = 2f;
         //delays for projectiles feel absolute ass so only do this if you know what you're doing, otherwise it's best to keep it at 0
-        public static float BaseDelayDuration = 2.0f;
+        public static float strikePointPercent = 1f;
 
         public static float DamageCoefficient = 16f;
 
@@ -23,7 +23,7 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             attackSoundString = "HenryBombThrow";
 
             baseDuration = BaseDuration;
-            baseDelayBeforeFiringProjectile = BaseDelayDuration;
+            baseDelayBeforeFiringProjectile = baseDuration * strikePointPercent;
 
             damageCoefficient = DamageCoefficient;
             //proc coefficient is set on the components of the projectile prefab
@@ -36,7 +36,10 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             recoilAmplitude = 0.1f;
             bloom = 10;
 
-            characterBody.AddTimedBuff(RoR2Content.Buffs.Slow50, BaseDelayDuration);
+            if (baseDelayBeforeFiringProjectile > 0.1f)
+            {
+                characterBody.AddTimedBuff(RoR2Content.Buffs.Slow80, baseDelayBeforeFiringProjectile);
+            }
 
             base.OnEnter();
         }
@@ -51,13 +54,15 @@ namespace Henry2Mod.Survivors.Henry.SkillStates
             return InterruptPriority.Skill;
         }
 
-        public override void PlayAnimation(float duration)
+        public override void FireProjectile()
         {
-
             if (GetModelAnimator())
             {
                 PlayAnimation("Gesture, Override", "ThrowBomb", "ThrowBomb.playbackRate", this.duration);
             }
+
+            base.FireProjectile();
         }
+
     }
 }
