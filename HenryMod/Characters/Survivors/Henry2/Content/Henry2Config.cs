@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using Henry2Mod.Modules;
 
 namespace Henry2Mod.Survivors.Henry

@@ -1,4 +1,4 @@
-﻿using Henry2Mod.Modules.BaseStates;
+using Henry2Mod.Modules.BaseStates;
 using RoR2;
 using System;
 using UnityEngine;

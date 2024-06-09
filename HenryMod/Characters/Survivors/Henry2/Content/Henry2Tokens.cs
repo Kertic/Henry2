@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Henry2Mod.Modules;
 using Henry2Mod.Survivors.Henry.Achievements;
 

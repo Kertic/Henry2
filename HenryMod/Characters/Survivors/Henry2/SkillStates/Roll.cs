@@ -1,4 +1,4 @@
-﻿using EntityStates;
+using EntityStates;
 using Henry2Mod.Survivors.Henry;
 using RoR2;
 using UnityEngine;

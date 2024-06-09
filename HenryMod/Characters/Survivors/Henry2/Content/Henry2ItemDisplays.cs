@@ -1,4 +1,4 @@
-﻿using Henry2Mod.Modules;
+using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
 using RoR2;
 using System.Collections.Generic;

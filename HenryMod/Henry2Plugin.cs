@@ -1,8 +1,10 @@
-using BepInEx;
+﻿using BepInEx;
 using EntityStates;
+using EntityStates.Huntress.HuntressWeapon;
 using Henry2Mod.Modules;
 using Henry2Mod.Survivors.Henry;
 using Henry2Mod.Survivors.Henry.SkillStates;
+using Henry2Mod.Survivors.VoidHuntress;
 using R2API;
 using R2API.Utils;
 using RoR2;
@@ -48,6 +50,7 @@ namespace Henry2Mod
 
             // character initialization
             new Henry2Survivor().Initialize();
+            new VoidHuntressSurvivor().Initialize();
 
             AddExtraSkill();
 

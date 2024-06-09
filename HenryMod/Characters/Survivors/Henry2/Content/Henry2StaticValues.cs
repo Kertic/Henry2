@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Henry2Mod.Survivors.Henry
 {

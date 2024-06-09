@@ -1,4 +1,4 @@
-﻿using Henry2Mod.Survivors.Henry.Achievements;
+using Henry2Mod.Survivors.Henry.Achievements;
 using RoR2;
 using UnityEngine;
 
