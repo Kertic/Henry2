@@ -204,8 +204,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
 
                 //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon2",
-                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+                activationStateMachineName = "Weapon",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 1f,
                 baseMaxStock = 2,
@@ -243,12 +243,12 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_DESCRIPTION",
                 skillIcon = assetBundle.LoadAsset<Sprite>("texUtilityIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(Roll)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(Backflip)),
                 activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
                 baseRechargeInterval = 10f,
-                baseMaxStock = 2,
+                baseMaxStock = 1,
 
                 rechargeStock = 1,
                 requiredStock = 1,
@@ -263,7 +263,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 isCombatSkill = false,
                 canceledFromSprinting = false,
                 cancelSprintingOnActivation = false,
-                forceSprintDuringState = true,
+                forceSprintDuringState = false,
             });
 
             Skills.AddUtilitySkills(bodyPrefab, utilitySkillDef1);

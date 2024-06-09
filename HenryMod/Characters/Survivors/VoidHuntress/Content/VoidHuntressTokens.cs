@@ -29,10 +29,6 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public static void AddVoidHuntressTokens()
         {
-            Log.Warning("[VoidHuntress Tokens]");
-            Log.Warning(VOID_COLOR);
-            Log.Warning(VOID_TEXT);
-            Log.Warning(ColorUtility.ToHtmlStringRGB(VOID_COLOR));
             string prefix = VoidHuntressSurvivor.VOIDHUNTRESS_PREFIX;
 
             string desc = "The Void Huntress is an archer that relies on maintaining it's Void state as long as it can before eventually returning to it's mundane state <color=#CCD3E0>" + Environment.NewLine + Environment.NewLine

@@ -8,21 +8,21 @@ namespace Henry2Mod.Survivors.VoidHuntress
     {
         // armor buff gained during roll
         public static BuffDef voidSicknessBuff;
-        public static BuffDef quickShot;
+        public static BuffDef lunarInsight;
 
         public static void Init()
         {
             voidSicknessBuff = Modules.Content.CreateAndAddBuff(
                 "VoidSicknessBuff",
                 Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/Common/bdVoidFogMild.asset").WaitForCompletion().iconSprite,
-                Color.white,
+                Color.magenta,
                 false,
-                false);
+                true);
 
-            quickShot = Modules.Content.CreateAndAddBuff(
-                "VoidHuntressQuickShot",
+            lunarInsight = Modules.Content.CreateAndAddBuff(
+                "VoidHuntressLunarInsight",
                  Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/CritOnUse/bdFullCrit.asset").WaitForCompletion().iconSprite,
-                 Color.green,
+                 Color.blue,
                  true,
                  false);
 

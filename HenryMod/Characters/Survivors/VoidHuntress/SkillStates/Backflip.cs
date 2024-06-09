@@ -1,20 +1,23 @@
 using EntityStates;
+using EntityStates.Huntress;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
-    public class Flit : BaseSkillState
+    public class Backflip : BaseSkillState
     {
         public static float duration = 0.5f;
-        public static float initialSpeedCoefficient = 5f;
+        public static float initialSpeedCoefficient = 10f;
         public static float finalSpeedCoefficient = 2.5f;
+        public static float jumpForce = 10.5f;
 
         public static string dodgeSoundString = "HenryRoll";
         public static float dodgeFOV = global::EntityStates.Commando.DodgeState.dodgeFOV;
 
         private float rollSpeed;
+        private float stopwatch;
         private Vector3 forwardDirection;
         private Animator animator;
         private Vector3 previousPosition;
@@ -24,23 +27,15 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
             base.OnEnter();
             animator = GetModelAnimator();
 
-            if (isAuthority && inputBank && characterDirection)
+            if (isAuthority && inputBank)
             {
-                forwardDirection = (inputBank.moveVector == Vector3.zero ? characterDirection.forward : inputBank.moveVector).normalized;
+                forwardDirection = -Vector3.ProjectOnPlane(inputBank.aimDirection, Vector3.up);
+                characterDirection.moveVector = -forwardDirection;
+                characterDirection.moveVector.y = jumpForce;
             }
 
-            RecalculateRollSpeed();
+            PlayAnimation("FullBody, Override", "Backflip", "Backflip.playbackRate", duration);
 
-            if (characterMotor && characterDirection)
-            {
-                characterMotor.velocity.y = 0f;
-                characterMotor.velocity = forwardDirection * rollSpeed;
-            }
-
-            Vector3 b = characterMotor ? characterMotor.velocity : Vector3.zero;
-            previousPosition = transform.position - b;
-
-            PlayAnimation("FullBody, Override", "Roll", "Roll.playbackRate", duration);
             Util.PlaySound(dodgeSoundString, gameObject);
 
             if (NetworkServer.active)
@@ -59,26 +54,23 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             base.FixedUpdate();
             RecalculateRollSpeed();
-
-            if (characterDirection) characterDirection.forward = forwardDirection;
-            if (cameraTargetParams) cameraTargetParams.fovOverride = Mathf.Lerp(dodgeFOV, 60f, fixedAge / duration);
-
-            Vector3 normalized = (transform.position - previousPosition).normalized;
-            if (characterMotor && characterDirection && normalized != Vector3.zero)
+            stopwatch += Time.fixedDeltaTime;
+            if (cameraTargetParams)
             {
-                Vector3 vector = normalized * rollSpeed;
-                float d = Mathf.Max(Vector3.Dot(vector, forwardDirection), 0f);
-                vector = forwardDirection * d;
-                vector.y = 0f;
-
-                characterMotor.velocity = vector;
+                cameraTargetParams.fovOverride = Mathf.Lerp(dodgeFOV, 60f, stopwatch / duration);
             }
-            previousPosition = transform.position;
 
-            if (isAuthority && fixedAge >= duration)
+            if (characterMotor && characterDirection)
+            {
+                Vector3 velocity = characterMotor.velocity;
+                Vector3 velocity2 = forwardDirection * rollSpeed;
+                characterMotor.velocity = velocity2;
+                characterMotor.velocity.y = velocity.y;
+                characterMotor.moveDirection = forwardDirection;
+            }
+            if (stopwatch >= duration && isAuthority)
             {
                 outer.SetNextStateToMain();
-                return;
             }
         }
 

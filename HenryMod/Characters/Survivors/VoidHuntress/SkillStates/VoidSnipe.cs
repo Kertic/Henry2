@@ -1,5 +1,6 @@
 ﻿using EntityStates;
 using EntityStates.Commando.CommandoWeapon;
+using EntityStates.Huntress.HuntressWeapon;
 using EntityStates.LunarWisp;
 using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
@@ -22,7 +23,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public static float force = 800f;
         public static float recoil = 3f;
         public static float range = 256f;
-        //        public static GameObject tracerEffectPrefab = LegacyResourcesAPI.Load<GameObject>("RoR2/Base/Huntress/TracerHuntressSnipe");
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
         private float totalDuration;
         private float beginFireTime;
@@ -33,10 +33,19 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         {
             base.OnEnter();
             totalDuration = baseDuration / attackSpeedStat;
-            beginFireTime = firePercentTime * totalDuration;
+
+            if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
+            {
+                beginFireTime = 0.25f * totalDuration;
+            }
+            else
+            {
+                beginFireTime = firePercentTime * totalDuration;
+                Util.PlayAttackSpeedSound("Play_huntress_m1_ready", base.gameObject, base.attackSpeedStat);
+            }
+
             hasRang = false;
             characterBody.SetAimTimer(2f);
-            Util.PlayAttackSpeedSound("Play_huntress_m1_ready", base.gameObject, base.attackSpeedStat);
             base.characterMotor.walkSpeedPenaltyCoefficient = VoidHuntressStaticValues.primaryBowMovementSlowPenalty;
         }
 
@@ -45,15 +54,18 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             base.FixedUpdate();
 
             PlayAnimation("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
-            float currentChargeRatio = Math.Min( fixedAge / beginFireTime, 1.0f);
-            Log.Warning("[VoidShot Charge Update]");
-            Log.Message(fixedAge);
-            Log.Message(beginFireTime);
-            Log.Message(currentChargeRatio);
-            characterBody.SetSpreadBloom(1 - (currentChargeRatio), false);
+            PlayAnimation("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
+            float currentChargeRatio = Math.Min(fixedAge / beginFireTime, 1.0f);
             if (fixedAge >= beginFireTime)
             {
+                characterBody.SetSpreadBloom(0.0f, false);
+                EffectManager.SimpleMuzzleFlash(FireFlurrySeekingArrow.critMuzzleflashEffectPrefab, gameObject, muzzleString, false);
                 RingBell();
+            }
+            else
+            {
+                var lerpResult = Mathf.Lerp(0.7f, 1.0f, 1 - (currentChargeRatio));
+                characterBody.SetSpreadBloom(lerpResult, false);
             }
 
 
@@ -73,7 +85,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         {
             characterMotor.walkSpeedPenaltyCoefficient = 1f;
 
-            if ((fixedAge >= beginFireTime) || characterBody.HasBuff(VoidHuntressBuffs.quickShot))
+            if ((fixedAge >= beginFireTime))
             {
                 Fire();
             }
@@ -86,7 +98,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             if (!hasRang)
             {
                 hasRang = true;
-                Util.PlaySound("Play_item_goldgat_fire", base.gameObject);
+                Util.PlaySound("Play_UI_cooldownRefresh", base.gameObject);
             }
         }
 
@@ -95,6 +107,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             Ray aimRay = GetAimRay();
             Util.PlaySound("Play_huntress_m2_impact", gameObject);
             PlayAnimation("Gesture, Override", "FireSeekingArrow");
+            PlayAnimation("Gesture, Additive", "FireSeekingArrow");
             var bulletAtk = new BulletAttack
             {
                 bulletCount = 1,
@@ -128,14 +141,14 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             };
 
             bulletAtk.Fire();
-            
-            if(characterBody.HasBuff(VoidHuntressBuffs.quickShot))
+
+            if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
             {
-                characterBody.RemoveBuff(VoidHuntressBuffs.quickShot);
-                    foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
-                    {
-                        characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStaticValues.primaryAttackCDRInSeconds);
-                    }
+                characterBody.SetBuffCount(VoidHuntressBuffs.lunarInsight.buffIndex, characterBody.GetBuffCount(VoidHuntressBuffs.lunarInsight) - 1);
+                foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
+                {
+                    characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStaticValues.primaryAttackCDRInSeconds);
+                }
 
             }
         }
