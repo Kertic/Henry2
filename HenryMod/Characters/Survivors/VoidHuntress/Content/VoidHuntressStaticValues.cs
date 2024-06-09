@@ -6,11 +6,11 @@ namespace Henry2Mod.Survivors.VoidHuntress
     {
         public const float swordDamageCoefficient = 2.8f;
 
-        public const float primaryGunDamageCoefficient = 4.2f;
+        public const float primaryBowDamageCoefficient = 4.2f;
 
-        public const float primaryAttackCDRInSeconds = 1.0f;
+        public const int primaryBowLunarInsightStacks = 1;
 
-        public const float multiShotGunDamageCoefficient = primaryGunDamageCoefficient / 3.0f;
+        public const float multiShotBowDamageCoefficient = primaryBowDamageCoefficient / 3.0f;
 
         public const float bombDamageCoefficient = 16f;
 

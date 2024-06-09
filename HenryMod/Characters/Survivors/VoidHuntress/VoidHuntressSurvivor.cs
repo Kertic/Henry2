@@ -1,27 +1,29 @@
 ﻿using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
 using Henry2Mod.Survivors.Henry;
+using Henry2Mod.Survivors.Henry.SkillStates;
 using RoR2;
 using RoR2.Skills;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Henry2Mod.Survivors.VoidHuntress
 {
     public class VoidHuntressSurvivor : SurvivorBase<VoidHuntressSurvivor>
     {
-        //used to load the assetbundle for this character. must be unique
-        public override string assetBundleName => "myassetbundle2"; //if you do not change this, you are giving permission to deprecate the mod
+        public override string assetBundleName => "myassetbundle2"; 
+        // public override string assetBundleName => "voidhuntressassetbundle"; 
 
-        //the name of the prefab we will create. conventionally ending in "Body". must be unique
-        public override string bodyName => "HenryBody"; //if you do not change this, you get the point by now
+        public override string bodyName => "VoidHuntressBody"; 
 
         //name of the ai master for vengeance and goobo. must be unique
-        public override string masterName => "HenryMonsterMaster"; //if you do not
+        public override string masterName => "VoidHuntressMonsterMaster"; 
 
         //the names of the prefabs you set up in unity that we will use to build your character
-        public override string modelPrefabName => "mdlHenry";
-        public override string displayPrefabName => "HenryDisplay";
+        public override string modelPrefabName => "mdlVoidHuntress";
+        public override string displayPrefabName => "VoidHuntressDisplay";
 
         public const string VOIDHUNTRESS_PREFIX = Henry2Plugin.DEVELOPER_PREFIX + "_VOIDHUNTRESS_";
 
@@ -34,7 +36,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
             bodyNameToken = VOIDHUNTRESS_PREFIX + "NAME",
             subtitleNameToken = VOIDHUNTRESS_PREFIX + "SUBTITLE",
 
-            characterPortrait = assetBundle.LoadAsset<Texture>("texHenryIcon"),
+            characterPortrait =  Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Huntress/texHuntressIcon.png").WaitForCompletion(),
+
             bodyColor = Color.white,
             sortPosition = 100,
 
@@ -78,6 +81,16 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public override CharacterModel prefabCharacterModel { get; protected set; }
         public override GameObject displayPrefab { get; protected set; }
         public GameObject voidHudObject { get; protected set; }
+        public override void Initialize()
+        {
+            //uncomment if you have multiple characters
+            //ConfigEntry<bool> characterEnabled = Config.CharacterEnableConfig("Survivors", "Henry");
+
+            //if (!characterEnabled.Value)
+            //    return;
+
+            base.Initialize();
+        }
 
         public override void InitializeCharacter()
         {
@@ -150,32 +163,117 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         private void AddPrimarySkills()
         {
-            throw new NotImplementedException();
+            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Primary);
+
+            //here is a basic skill def with all fields accounted for
+            var m_primarySkill = Skills.CreateSkillDef(new SkillDefInfo
+                (
+                "HenryPrimaryGun",
+                VOIDHUNTRESS_PREFIX + "PRIMARY_1_NAME",
+                VOIDHUNTRESS_PREFIX + "PRIMARY_1_DESCRIPTION",
+                assetBundle.LoadAsset<Sprite>("texPistolIcon"),
+                new EntityStates.SerializableEntityStateType(typeof(HenryPrimaryShoot)))
+            );
+
+            Skills.AddPrimarySkills(bodyPrefab, m_primarySkill);
+
         }
 
         private void AddSecondarySkills()
         {
-            throw new NotImplementedException();
         }
 
         private void AddUtiitySkills()
         {
-            throw new NotImplementedException();
         }
 
         private void AddSpecialSkills()
         {
-            throw new NotImplementedException();
         }
 
         public override void InitializeSkins()
         {
-            throw new NotImplementedException();
+            ModelSkinController skinController = prefabCharacterModel.gameObject.AddComponent<ModelSkinController>();
+            ChildLocator childLocator = prefabCharacterModel.GetComponent<ChildLocator>();
+
+            CharacterModel.RendererInfo[] defaultRendererinfos = prefabCharacterModel.baseRendererInfos;
+
+            List<SkinDef> skins = new List<SkinDef>();
+
+            #region DefaultSkin
+            //this creates a SkinDef with all default fields
+            SkinDef defaultSkin = Skins.CreateSkinDef("DEFAULT_SKIN",
+                assetBundle.LoadAsset<Sprite>("texMainSkin"),
+                defaultRendererinfos,
+                prefabCharacterModel.gameObject);
+
+            //these are your Mesh Replacements. The order here is based on your CustomRendererInfos from earlier
+            //pass in meshes as they are named in your assetbundle
+            //currently not needed as with only 1 skin they will simply take the default meshes
+            //uncomment this when you have another skin
+            //defaultSkin.meshReplacements = Modules.Skins.getMeshReplacements(assetBundle, defaultRendererinfos,
+            //    "meshHenrySword",
+            //    "meshHenryGun",
+            //    "meshHenry");
+
+            //add new skindef to our list of skindefs. this is what we'll be passing to the SkinController
+            skins.Add(defaultSkin);
+            #endregion
+
+            //uncomment this when you have a mastery skin
+            #region MasterySkin
+
+            ////creating a new skindef as we did before
+            //SkinDef masterySkin = Modules.Skins.CreateSkinDef(HENRY_PREFIX + "MASTERY_SKIN_NAME",
+            //    assetBundle.LoadAsset<Sprite>("texMasteryAchievement"),
+            //    defaultRendererinfos,
+            //    prefabCharacterModel.gameObject,
+            //    HenryUnlockables.masterySkinUnlockableDef);
+
+            ////adding the mesh replacements as above. 
+            ////if you don't want to replace the mesh (for example, you only want to replace the material), pass in null so the order is preserved
+            //masterySkin.meshReplacements = Modules.Skins.getMeshReplacements(assetBundle, defaultRendererinfos,
+            //    "meshHenrySwordAlt",
+            //    null,//no gun mesh replacement. use same gun mesh
+            //    "meshHenryAlt");
+
+            ////masterySkin has a new set of RendererInfos (based on default rendererinfos)
+            ////you can simply access the RendererInfos' materials and set them to the new materials for your skin.
+            //masterySkin.rendererInfos[0].defaultMaterial = assetBundle.LoadMaterial("matHenryAlt");
+            //masterySkin.rendererInfos[1].defaultMaterial = assetBundle.LoadMaterial("matHenryAlt");
+            //masterySkin.rendererInfos[2].defaultMaterial = assetBundle.LoadMaterial("matHenryAlt");
+
+            ////here's a barebones example of using gameobjectactivations that could probably be streamlined or rewritten entirely, truthfully, but it works
+            //masterySkin.gameObjectActivations = new SkinDef.GameObjectActivation[]
+            //{
+            //    new SkinDef.GameObjectActivation
+            //    {
+            //        gameObject = childLocator.FindChildGameObject("GunModel"),
+            //        shouldActivate = false,
+            //    }
+            //};
+            ////simply find an object on your child locator you want to activate/deactivate and set if you want to activate/deacitvate it with this skin
+
+            //skins.Add(masterySkin);
+
+            #endregion
+
+            skinController.skins = skins.ToArray();
         }
 
         public override void InitializeCharacterMaster()
         {
-            throw new NotImplementedException();
+            //you must only do one of these. adding duplicate masters breaks the game.
+
+            //if you're lazy or prototyping you can simply copy the AI of a different character to be used
+            //Modules.Prefabs.CloneDopplegangerMaster(bodyPrefab, masterName, "Merc");
+
+            //how to set up AI in code
+            Henry2AI.Init(bodyPrefab, masterName);
+
+            //how to load a master set up in unity, can be an empty gameobject with just AISkillDriver components
+            //assetBundle.LoadMaster(bodyPrefab, masterName);
+
         }
 
         void AddHooks()

@@ -51,8 +51,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
             #endregion
 
             #region Primary
-            Language.Add(prefix + "PRIMARY_GUN_NAME", "Gun");
-            Language.Add(prefix + "PRIMARY_GUN_DESCRIPTION", $"Fire your gun, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryGunDamageCoefficient}% damage and reducing cooldowns by {VoidHuntressStaticValues.primaryAttackCDRInSeconds} seconds</style>.");
+            Language.Add(prefix + "PRIMARY_1_NAME", "Bow shot");
+            Language.Add(prefix + "PRIMARY_1_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowLunarInsightStacks} lunar insight stacks</style>.");
             #endregion
 
             #region Primary2
@@ -61,8 +61,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
             #endregion
 
             #region Secondary
-            Language.Add(prefix + "SECONDARY_GUN_NAME", "Handgun");
-            Language.Add(prefix + "SECONDARY_GUN_DESCRIPTION", Tokens.agilePrefix + $"Empties a handgun's clip for <style=cIsDamage>{100f * VoidHuntressStaticValues.multiShotGunDamageCoefficient}% damage per bullet</style>.");
+            Language.Add(prefix + "SECONDARY_1_NAME", "");
+            Language.Add(prefix + "SECONDARY_1_DESCRIPTION", Tokens.agilePrefix + $"Empties a handgun's clip for <style=cIsDamage>{100f * VoidHuntressStaticValues.multiShotBowDamageCoefficient}% damage per bullet</style>.");
             #endregion
 
             #region Utility
