@@ -1,4 +1,6 @@
-﻿using Henry2Mod.Modules;
+﻿using Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates;
+using Henry2Mod.Characters.Survivors.VoidHuntress.UI;
+using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
 using Henry2Mod.Survivors.Henry;
 using Henry2Mod.Survivors.Henry.SkillStates;
@@ -8,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.UI;
 
 namespace Henry2Mod.Survivors.VoidHuntress
 {
@@ -63,7 +66,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public override GameObject characterModelObject { get; protected set; }
         public override CharacterModel prefabCharacterModel { get; protected set; }
         public override GameObject displayPrefab { get; protected set; }
-        public GameObject voidHudObject { get; protected set; }
+        public VoidMeter voidHudMeterRef { get; protected set; }
         public override void Initialize()
         {
             //uncomment if you have multiple characters
@@ -172,8 +175,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 VOIDHUNTRESS_PREFIX + "PRIMARY_1_NAME",
                 VOIDHUNTRESS_PREFIX + "PRIMARY_1_DESCRIPTION",
                 assetBundle.LoadAsset<Sprite>("texPistolIcon"),
-                new EntityStates.SerializableEntityStateType(typeof(HenryPrimaryShoot)))
+                new EntityStates.SerializableEntityStateType(typeof(VoidSnipe)))
             );
+            m_primarySkill.canceledFromSprinting = true;
+            m_primarySkill.cancelSprintingOnActivation = true;
 
             Skills.AddPrimarySkills(bodyPrefab, m_primarySkill);
 
@@ -379,7 +384,25 @@ namespace Henry2Mod.Survivors.VoidHuntress
         void AddHooks()
         {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
+            On.RoR2.UI.HUD.Awake += HUD_Awake;
         }
+
+        private void HUD_Awake(On.RoR2.UI.HUD.orig_Awake orig, RoR2.UI.HUD self)
+        {
+            CreateResourceGauge(self);
+            orig(self);
+        }
+
+        private void CreateResourceGauge(RoR2.UI.HUD hud)
+        {
+            if (voidHudMeterRef) return;
+
+            Log.Warning("[ResourceGaugeMake]");
+            var voidHudRoot = new GameObject("VoidHuntressHud");
+            voidHudRoot.transform.SetParent(hud.mainContainer.transform);
+            voidHudMeterRef = voidHudRoot.AddComponent<VoidMeter>();
+        }
+
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args)
         {
             //This is where I'd add in conditional stat changes based on the state of my character

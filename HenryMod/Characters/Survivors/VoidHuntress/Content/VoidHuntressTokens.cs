@@ -1,16 +1,22 @@
 ﻿using System;
 using Henry2Mod.Modules;
 using Henry2Mod.Survivors.Henry.Achievements;
+using UnityEngine;
 
 namespace Henry2Mod.Survivors.VoidHuntress
 {
     public static class VoidHuntressTokens
     {
 
-        private static string VOID_TEXT = "<color=#8d64de>";
-        private static string GREY_TEXT = "<color=#CCD3E0>";
-        private static string WHITE_TEXT = "<color=#FFFFFF>";
-        private static string VOID_SICKNESS = VOID_TEXT + "Void Sickness" + GREY_TEXT;
+        public static Color VOID_COLOR = new Color(
+                r: 141.0f / 256.0f,
+                g: 100.0f / 256.0f,
+                b: 222.0f / 256.0f);
+
+        public static string VOID_TEXT = "<color=#" + ColorUtility.ToHtmlStringRGB(VOID_COLOR) + ">";
+        public static string GREY_TEXT = "<color=#CCD3E0>";
+        public static string WHITE_TEXT = "<color=#FFFFFF>";
+        public static string VOID_SICKNESS = VOID_TEXT + "Void Sickness" + GREY_TEXT;
         public static void Init()
         {
             AddVoidHuntressTokens();
@@ -23,10 +29,14 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public static void AddVoidHuntressTokens()
         {
+            Log.Warning("[VoidHuntress Tokens]");
+            Log.Warning(VOID_COLOR);
+            Log.Warning(VOID_TEXT);
+            Log.Warning(ColorUtility.ToHtmlStringRGB(VOID_COLOR));
             string prefix = VoidHuntressSurvivor.VOIDHUNTRESS_PREFIX;
 
             string desc = "The Void Huntress is an archer that relies on maintaining it's Void state as long as it can before eventually returning to it's mundane state <color=#CCD3E0>" + Environment.NewLine + Environment.NewLine
-             + "< ! > Maintain your connection to the void as long as you can while under it's influence, but eventually the "+ VOID_SICKNESS + " will overwelm you and push you back into normality" + Environment.NewLine + Environment.NewLine
+             + "< ! > Maintain your connection to the void as long as you can while under it's influence, but eventually the " + VOID_SICKNESS + " will overwelm you and push you back into normality" + Environment.NewLine + Environment.NewLine
              + "< ! > Use your Bow to gain Corruption while enabling your Bow's Secondary" + Environment.NewLine + Environment.NewLine
              + "< ! > Your Secondary can help you gain more Corruption or maintain it while in Void Form." + Environment.NewLine + Environment.NewLine
              + "< ! > Your Special will commit to your Void Form, where your abilities will change." + Environment.NewLine + Environment.NewLine;

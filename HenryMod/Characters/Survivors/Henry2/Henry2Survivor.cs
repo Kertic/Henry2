@@ -467,7 +467,6 @@ namespace Henry2Mod.Survivors.Henry
 
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args)
         {
-
             if (sender.HasBuff(Henry2Buffs.armorBuff))
             {
                 args.armorAdd += 300;
