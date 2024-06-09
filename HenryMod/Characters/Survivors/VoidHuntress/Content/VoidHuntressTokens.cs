@@ -62,7 +62,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             #region Primary
             Language.Add(prefix + "PRIMARY_1_NAME", "Bow shot");
-            Language.Add(prefix + "PRIMARY_1_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowLunarInsightStacks} lunar insight stacks</style>.");
+            Language.Add(prefix + "PRIMARY_1_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowLunarInsightStacks} lunar insight stacks</style>. If you have Quick Shot, you charge up instantly and reduce your cooldowns by 1 second.");
             #endregion
 
             #region Primary2
@@ -72,7 +72,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             #region Secondary
             Language.Add(prefix + "SECONDARY_1_NAME", "");
-            Language.Add(prefix + "SECONDARY_1_DESCRIPTION", Tokens.agilePrefix + $"Empties a handgun's clip for <style=cIsDamage>{100f * VoidHuntressStaticValues.multiShotBowDamageCoefficient}% damage per bullet</style>.");
+            Language.Add(prefix + "SECONDARY_1_DESCRIPTION", Tokens.agilePrefix + $"Dash quickly to evade attacks, and gain 1 Quick Shot");
             #endregion
 
             #region Utility

@@ -45,6 +45,12 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             base.FixedUpdate();
 
             PlayAnimation("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
+            float currentChargeRatio = Math.Min( fixedAge / beginFireTime, 1.0f);
+            Log.Warning("[VoidShot Charge Update]");
+            Log.Message(fixedAge);
+            Log.Message(beginFireTime);
+            Log.Message(currentChargeRatio);
+            characterBody.SetSpreadBloom(1 - (currentChargeRatio), false);
             if (fixedAge >= beginFireTime)
             {
                 RingBell();
@@ -53,14 +59,11 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
             if ((!base.inputBank || !base.inputBank.skill1.down) && base.isAuthority)
             {
-                if (fixedAge >= beginFireTime)
-                {
-                    Fire();
-                }
-                else
+                if (fixedAge < beginFireTime)
                 {
                     Util.PlayAttackSpeedSound("Play_huntress_m1_unready", base.gameObject, base.attackSpeedStat);
                 }
+
                 outer.SetNextStateToMain();
                 return;
             }
@@ -68,7 +71,13 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         }
         public override void OnExit()
         {
-            base.characterMotor.walkSpeedPenaltyCoefficient = 1f;
+            characterMotor.walkSpeedPenaltyCoefficient = 1f;
+
+            if ((fixedAge >= beginFireTime) || characterBody.HasBuff(VoidHuntressBuffs.quickShot))
+            {
+                Fire();
+            }
+
             base.OnExit();
         }
 
@@ -119,6 +128,16 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             };
 
             bulletAtk.Fire();
+            
+            if(characterBody.HasBuff(VoidHuntressBuffs.quickShot))
+            {
+                characterBody.RemoveBuff(VoidHuntressBuffs.quickShot);
+                    foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
+                    {
+                        characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStaticValues.primaryAttackCDRInSeconds);
+                    }
+
+            }
         }
 
         private bool VoidSnipeHitCallback(BulletAttack bulletAttackRef, ref BulletHit hitInfo)

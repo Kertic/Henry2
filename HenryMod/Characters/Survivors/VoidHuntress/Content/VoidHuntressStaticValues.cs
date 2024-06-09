@@ -8,7 +8,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public const float primaryBowDamageCoefficient = 4.2f;
 
-        public const int primaryBowLunarInsightStacks = 1;
+        public const float primaryAttackCDRInSeconds = 1.0f;
 
         public const float primaryBowMovementSlowPenalty = 0.7f;
 
@@ -16,5 +16,6 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public const float bombDamageCoefficient = 16f;
 
+        public const int primaryBowLunarInsightStacks = 1;
     }
 }

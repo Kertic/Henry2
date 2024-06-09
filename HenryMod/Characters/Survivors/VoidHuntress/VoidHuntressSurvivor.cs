@@ -4,6 +4,7 @@ using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
 using Henry2Mod.Survivors.Henry;
 using Henry2Mod.Survivors.Henry.SkillStates;
+using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 using RoR2;
 using RoR2.Skills;
 using System;
@@ -67,6 +68,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public override CharacterModel prefabCharacterModel { get; protected set; }
         public override GameObject displayPrefab { get; protected set; }
         public VoidMeter voidHudMeterRef { get; protected set; }
+        public float voidAmount { get; protected set; }
+        public float maxVoidAmount { get; protected set; }
         public override void Initialize()
         {
             //uncomment if you have multiple characters
@@ -88,6 +91,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             VoidHuntressConfig.Init();
             VoidHuntressStates.Init();
             VoidHuntressTokens.Init();
+            VoidHuntressBuffs.Init();
 
 
             InitializeEntityStateMachines();
@@ -197,26 +201,26 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(MultiShot)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
 
                 //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
                 activationStateMachineName = "Weapon2",
-                interruptPriority = EntityStates.InterruptPriority.Skill,
+                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
                 baseRechargeInterval = 1f,
-                baseMaxStock = 5,
+                baseMaxStock = 2,
 
                 rechargeStock = 1,
                 requiredStock = 1,
-                stockToConsume = 0,
+                stockToConsume = 1,
 
-                resetCooldownTimerOnUse = true,
+                resetCooldownTimerOnUse = false,
                 fullRestockOnAssign = true,
                 dontAllowPastMaxStocks = true,
                 mustKeyPress = false,
                 beginSkillCooldownOnSkillEnd = true,
 
-                isCombatSkill = true,
+                isCombatSkill = false,
                 canceledFromSprinting = false,
                 cancelSprintingOnActivation = false,
                 forceSprintDuringState = false,
