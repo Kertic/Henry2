@@ -25,7 +25,6 @@ namespace Henry2Mod.Modules
 
         internal static void AddSurvivorDef(SurvivorDef survivorDef)
         {
-
             ContentPacks.survivorDefs.Add(survivorDef);
         }
         internal static void CreateSurvivor(GameObject bodyPrefab, GameObject displayPrefab, Color charColor, string tokenPrefix) { CreateSurvivor(bodyPrefab, displayPrefab, charColor, tokenPrefix, null, 100f); }

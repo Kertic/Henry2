@@ -13,17 +13,17 @@ namespace Henry2Mod.Survivors.VoidHuntress
 {
     public class VoidHuntressSurvivor : SurvivorBase<VoidHuntressSurvivor>
     {
-        public override string assetBundleName => "myassetbundle2"; 
+        public override string assetBundleName => "myassetbundle2";
         // public override string assetBundleName => "voidhuntressassetbundle"; 
 
-        public override string bodyName => "VoidHuntressBody"; 
+        public override string bodyName => "VoidHuntressBody";
 
         //name of the ai master for vengeance and goobo. must be unique
-        public override string masterName => "VoidHuntressMonsterMaster"; 
+        public override string masterName => "VoidHuntressMonsterMaster";
 
         //the names of the prefabs you set up in unity that we will use to build your character
-        public override string modelPrefabName => "mdlVoidHuntress";
-        public override string displayPrefabName => "VoidHuntressDisplay";
+        public override string modelPrefabName => "mdlHuntress";
+        public override string displayPrefabName => "HuntressDisplay";
 
         public const string VOIDHUNTRESS_PREFIX = Henry2Plugin.DEVELOPER_PREFIX + "_VOIDHUNTRESS_";
 
@@ -36,7 +36,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             bodyNameToken = VOIDHUNTRESS_PREFIX + "NAME",
             subtitleNameToken = VOIDHUNTRESS_PREFIX + "SUBTITLE",
 
-            characterPortrait =  Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Huntress/texHuntressIcon.png").WaitForCompletion(),
+            characterPortrait = Addressables.LoadAssetAsync<Texture2D>("RoR2/Base/Huntress/texHuntressIcon.png").WaitForCompletion(),
 
             bodyColor = Color.white,
             sortPosition = 100,
@@ -49,23 +49,6 @@ namespace Henry2Mod.Survivors.VoidHuntress
             armor = 0f,
 
             jumpCount = 1,
-        };
-
-        public override CustomRendererInfo[] customRendererInfos => new CustomRendererInfo[]
-        {
-                new CustomRendererInfo
-                {
-                    childName = "SwordModel",
-                    material = assetBundle.LoadMaterial("matHenry"),
-                },
-                new CustomRendererInfo
-                {
-                    childName = "GunModel",
-                },
-                new CustomRendererInfo
-                {
-                    childName = "Model",
-                }
         };
 
         public override UnlockableDef characterUnlockableDef => VoidHuntressUnlockables.characterUnlockableDef;
@@ -103,8 +86,6 @@ namespace Henry2Mod.Survivors.VoidHuntress
             VoidHuntressStates.Init();
             VoidHuntressTokens.Init();
 
-            VoidHuntressAssets.Init(assetBundle);
-            VoidHuntressBuffs.Init(assetBundle);
 
             InitializeEntityStateMachines();
             InitializeSkills();
@@ -115,6 +96,24 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             AddHooks();
         }
+
+        protected override void InitializeCharacterBodyPrefab()
+        {
+            GameObject defaultBodyPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Huntress/HuntressBody.prefab").WaitForCompletion();
+
+            characterModelObject = defaultBodyPrefab.transform.Find("ModelBase").Find("mdlHuntress").gameObject;
+            bodyPrefab = Prefabs.CreateBodyPrefab(characterModelObject, bodyInfo);
+            prefabCharacterBody = bodyPrefab.GetComponent<CharacterBody>();
+
+            prefabCharacterModel = Prefabs.SetupCharacterModel(bodyPrefab, customRendererInfos);
+
+        }
+
+        protected override void InitializeDisplayPrefab()
+        {
+            displayPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Huntress/HuntressDisplay.prefab").WaitForCompletion();
+        }
+
         public override void InitializeEntityStateMachines()
         {
             //clear existing state machines from your cloned body (probably commando)
@@ -127,6 +126,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             //don't forget to register custom entitystates in your HenryStates.cs
 
             Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon");
+            Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon2");
         }
 
         void AdditionalBodySetup()
@@ -155,10 +155,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 skillName = "VoidTouched",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "PASSIVE_NAME",
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "PASSIVE_DESCRIPTION",
-                keywordTokens = new string[] {},
                 skillIcon = assetBundle.LoadAsset<Sprite>("texPassiveIcon"),
             });
 
+            Skills.AddSkillsToFamily(passiveGenericSkill.skillFamily, passiveSkillDef1);
         }
 
         private void AddPrimarySkills()
@@ -168,7 +168,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             //here is a basic skill def with all fields accounted for
             var m_primarySkill = Skills.CreateSkillDef(new SkillDefInfo
                 (
-                "HenryPrimaryGun",
+                "VoidBow",
                 VOIDHUNTRESS_PREFIX + "PRIMARY_1_NAME",
                 VOIDHUNTRESS_PREFIX + "PRIMARY_1_DESCRIPTION",
                 assetBundle.LoadAsset<Sprite>("texPistolIcon"),
@@ -181,21 +181,121 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         private void AddSecondarySkills()
         {
+            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Secondary);
+
+            //here is a basic skill def with all fields accounted for
+            var m_secondarySkill = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "VoidSeeker",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "SECONDARY_1_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SECONDARY_1_DESCRIPTION",
+                keywordTokens = new string[] { "KEYWORD_AGILE" },
+                skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(MultiShot)),
+
+                //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
+                activationStateMachineName = "Weapon2",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
+
+                baseRechargeInterval = 1f,
+                baseMaxStock = 5,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 0,
+
+                resetCooldownTimerOnUse = true,
+                fullRestockOnAssign = true,
+                dontAllowPastMaxStocks = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+
+                isCombatSkill = true,
+                canceledFromSprinting = false,
+                cancelSprintingOnActivation = false,
+                forceSprintDuringState = false,
+
+            });
+
+            Skills.AddSecondarySkills(bodyPrefab, m_secondarySkill);
+
         }
 
         private void AddUtiitySkills()
         {
+            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Utility);
+
+            //here's a skilldef of a typical movement skill.
+            SkillDef utilitySkillDef1 = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "HenryRoll",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_DESCRIPTION",
+                skillIcon = assetBundle.LoadAsset<Sprite>("texUtilityIcon"),
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(Roll)),
+                activationStateMachineName = "Body",
+                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+
+                baseRechargeInterval = 10f,
+                baseMaxStock = 2,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
+
+                resetCooldownTimerOnUse = false,
+                fullRestockOnAssign = true,
+                dontAllowPastMaxStocks = false,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = false,
+
+                isCombatSkill = false,
+                canceledFromSprinting = false,
+                cancelSprintingOnActivation = false,
+                forceSprintDuringState = true,
+            });
+
+            Skills.AddUtilitySkills(bodyPrefab, utilitySkillDef1);
+
         }
 
         private void AddSpecialSkills()
         {
+            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Special);
+
+            //a basic skill. some fields are omitted and will just have default values
+            SkillDef specialSkillDef1 = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "HenryBomb",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
+                skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(ThrowBomb)),
+                activationStateMachineName = "Weapon",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
+
+                baseRechargeInterval = 10f,
+                baseMaxStock = 1,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
+
+                isCombatSkill = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+            });
+
+            Skills.AddSpecialSkills(bodyPrefab, specialSkillDef1);
         }
 
         public override void InitializeSkins()
         {
-            ModelSkinController skinController = prefabCharacterModel.gameObject.AddComponent<ModelSkinController>();
+            ModelSkinController skinController = prefabCharacterModel.gameObject.GetComponent<ModelSkinController>();
             ChildLocator childLocator = prefabCharacterModel.GetComponent<ChildLocator>();
-
             CharacterModel.RendererInfo[] defaultRendererinfos = prefabCharacterModel.baseRendererInfos;
 
             List<SkinDef> skins = new List<SkinDef>();
@@ -203,7 +303,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             #region DefaultSkin
             //this creates a SkinDef with all default fields
             SkinDef defaultSkin = Skins.CreateSkinDef("DEFAULT_SKIN",
-                assetBundle.LoadAsset<Sprite>("texMainSkin"),
+                Addressables.LoadAssetAsync<Sprite>("RoR2/Base/Achievements/texMercClearGameMonsoonIcon.png").WaitForCompletion(),
                 defaultRendererinfos,
                 prefabCharacterModel.gameObject);
 

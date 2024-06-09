@@ -50,9 +50,9 @@ namespace Henry2Mod
 
             // character initialization
             new Henry2Survivor().Initialize();
-//            new VoidHuntressSurvivor().Initialize();
+            new VoidHuntressSurvivor().Initialize();
 
-            AddExtraSkill();
+            // AddExtraSkill();
 
             // make a content pack and add it. this has to be last
             new Modules.ContentPacks().Initialize();

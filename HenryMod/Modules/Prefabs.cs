@@ -414,6 +414,8 @@ namespace Henry2Mod.Modules
                 Log.Debug("Hitboxgroup already exists on model prefab. aborting code setup");
                 return;
             }
+            Log.Warning("[ChildrenList]");
+            Log.Warning(bodyPrefab);
 
             ChildLocator childLocator = model.GetComponent<ChildLocator>();
 
