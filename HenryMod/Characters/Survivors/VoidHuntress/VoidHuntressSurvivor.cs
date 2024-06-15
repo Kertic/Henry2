@@ -1,4 +1,5 @@
-﻿using Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates;
+﻿using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
+using Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates;
 using Henry2Mod.Characters.Survivors.VoidHuntress.UI;
 using Henry2Mod.Modules;
 using Henry2Mod.Modules.Characters;
@@ -68,6 +69,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public override CharacterModel prefabCharacterModel { get; protected set; }
         public override GameObject displayPrefab { get; protected set; }
         public VoidMeter voidHudMeterRef { get; protected set; }
+        public VoidHuntressVoidState voidHuntressVoidStateRef { get; protected set; }
         public float voidAmount { get; protected set; }
         public float maxVoidAmount { get; protected set; }
         public override void Initialize()
@@ -134,11 +136,13 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon");
             Prefabs.AddEntityStateMachine(bodyPrefab, "Weapon2");
+
         }
 
         void AdditionalBodySetup()
         {
             // This would be where we add things like the void bow
+            voidHuntressVoidStateRef = bodyPrefab.AddComponent<VoidHuntressVoidState>();
         }
 
         public override void InitializeSkills()
@@ -282,7 +286,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(ThrowBomb)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidBomb)),
                 activationStateMachineName = "Weapon",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
@@ -389,6 +393,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
         {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
             On.RoR2.UI.HUD.Awake += HUD_Awake;
+            RoR2.UI.HUD.onHudTargetChangedGlobal += HUD_onHudTargetChangedGlobal;
         }
 
         private void HUD_Awake(On.RoR2.UI.HUD.orig_Awake orig, RoR2.UI.HUD self)
@@ -402,9 +407,23 @@ namespace Henry2Mod.Survivors.VoidHuntress
             if (voidHudMeterRef) return;
 
             Log.Warning("[ResourceGaugeMake]");
+            Log.Warning("[VoidStateRef]: " + voidHuntressVoidStateRef);
             var voidHudRoot = new GameObject("VoidHuntressHud");
             voidHudRoot.transform.SetParent(hud.mainContainer.transform);
             voidHudMeterRef = voidHudRoot.AddComponent<VoidMeter>();
+            voidHudMeterRef.Init(voidHuntressVoidStateRef);
+
+        }
+        private void HUD_onHudTargetChangedGlobal(RoR2.UI.HUD obj)
+        {
+            if (obj && obj.targetBodyObject && voidHudMeterRef)
+            {
+                var voidState = obj.targetBodyObject.GetComponent<VoidHuntressVoidState>();
+                if (voidState)
+                {
+                    voidHudMeterRef.Init(voidState);
+                }
+            }
         }
 
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args)

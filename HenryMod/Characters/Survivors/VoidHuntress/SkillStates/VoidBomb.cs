@@ -4,13 +4,13 @@ using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace Henry2Mod.Survivors.Henry.SkillStates
+namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
-    public class ThrowBomb : GenericProjectileBaseState
+    public class VoidBomb : GenericProjectileBaseState
     {
         public static float BaseDuration = 2f;
         //delays for projectiles feel absolute ass so only do this if you know what you're doing, otherwise it's best to keep it at 0
-        public static float strikePointPercent = 1f;
+        public static float strikePointPercent = 0f;
 
         public static float DamageCoefficient = 16f;
 

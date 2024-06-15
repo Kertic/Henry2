@@ -2,6 +2,7 @@
 using EntityStates.Commando.CommandoWeapon;
 using EntityStates.Huntress.HuntressWeapon;
 using EntityStates.LunarWisp;
+using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
 using System;
@@ -24,15 +25,18 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public static float recoil = 3f;
         public static float range = 256f;
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
+
         private float totalDuration;
         private float beginFireTime;
         private bool hasRang;
         private string muzzleString;
+        private VoidHuntressVoidState m_voidState;
 
         public override void OnEnter()
         {
             base.OnEnter();
             totalDuration = baseDuration / attackSpeedStat;
+            m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
 
             if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
             {
@@ -163,7 +167,8 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
                 if (attackerBody != null)
                 {
-                    Log.Info("[Meter gain]: " + VoidHuntressStaticValues.primaryBowLunarInsightStacks);
+                    Log.Info("[Meter gain]: " + VoidHuntressStaticValues.primaryBowVoidMeterGain);
+                    m_voidState?.AddVoidMeter(VoidHuntressStaticValues.primaryBowVoidMeterGain);
                 }
 
             }

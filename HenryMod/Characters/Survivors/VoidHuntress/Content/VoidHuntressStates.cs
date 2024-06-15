@@ -1,5 +1,6 @@
 ﻿using Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates;
 using Henry2Mod.Survivors.Henry.SkillStates;
+using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 
 namespace Henry2Mod.Survivors.VoidHuntress
 {
@@ -15,7 +16,12 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             Modules.Content.AddEntityState(typeof(Roll));
 
+            Modules.Content.AddEntityState(typeof(Backflip));
+
             Modules.Content.AddEntityState(typeof(ThrowBomb));
+
+            Modules.Content.AddEntityState(typeof(VoidBomb));
+
         }
     }
 }

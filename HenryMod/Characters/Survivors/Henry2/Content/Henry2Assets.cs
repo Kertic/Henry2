@@ -3,6 +3,7 @@ using UnityEngine;
 using Henry2Mod.Modules;
 using System;
 using RoR2.Projectile;
+using UnityEngine.AddressableAssets;
 
 namespace Henry2Mod.Survivors.Henry
 {
@@ -18,7 +19,7 @@ namespace Henry2Mod.Survivors.Henry
         public static NetworkSoundEventDef swordHitSoundEvent;
 
         //projectiles
-        public static GameObject bombProjectilePrefab;
+        public static GameObject voidBombProjectilePrefab;
 
         private static AssetBundle _assetBundle;
 
@@ -70,18 +71,18 @@ namespace Henry2Mod.Survivors.Henry
         private static void CreateProjectiles()
         {
             CreateBombProjectile();
-            Content.AddProjectilePrefab(bombProjectilePrefab);
+            Content.AddProjectilePrefab(voidBombProjectilePrefab);
         }
 
         private static void CreateBombProjectile()
         {
             //highly recommend setting up projectiles in editor, but this is a quick and dirty way to prototype if you want
-            bombProjectilePrefab = Assets.CloneProjectilePrefab("CommandoGrenadeProjectile", "HenryBombProjectile");
+            voidBombProjectilePrefab = Assets.CloneProjectilePrefab("CommandoGrenadeProjectile", "HenryBombProjectile");
 
             //remove their ProjectileImpactExplosion component and start from default values
-            UnityEngine.Object.Destroy(bombProjectilePrefab.GetComponent<ProjectileImpactExplosion>());
-            ProjectileImpactExplosion bombImpactExplosion = bombProjectilePrefab.AddComponent<ProjectileImpactExplosion>();
-            
+            UnityEngine.Object.Destroy(voidBombProjectilePrefab.GetComponent<ProjectileImpactExplosion>());
+            ProjectileImpactExplosion bombImpactExplosion = voidBombProjectilePrefab.AddComponent<ProjectileImpactExplosion>();
+
             bombImpactExplosion.blastRadius = 16f;
             bombImpactExplosion.blastDamageCoefficient = 1f;
             bombImpactExplosion.falloffModel = BlastAttack.FalloffModel.None;
@@ -92,11 +93,9 @@ namespace Henry2Mod.Survivors.Henry
             bombImpactExplosion.timerAfterImpact = true;
             bombImpactExplosion.lifetimeAfterImpact = 0.1f;
 
-            ProjectileController bombController = bombProjectilePrefab.GetComponent<ProjectileController>();
+            ProjectileController bombController = voidBombProjectilePrefab.GetComponent<ProjectileController>();
 
-            if (_assetBundle.LoadAsset<GameObject>("HenryBombGhost") != null)
-                bombController.ghostPrefab = _assetBundle.CreateProjectileGhostPrefab("HenryBombGhost");
-            
+            bombController.ghostPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidBarnacle/VoidBarnacleBulletGhost.prefab").WaitForCompletion();
             bombController.startSound = "";
         }
         #endregion projectiles

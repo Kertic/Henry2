@@ -1,4 +1,5 @@
-﻿using Henry2Mod.Survivors.VoidHuntress;
+﻿using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
+using Henry2Mod.Survivors.VoidHuntress;
 using R2API;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.UI
         private GameObject voidHudForeground;
         private Image fillImage;
         private Image backgroundImage;
+        private VoidHuntressVoidState m_state;
         public float m_meterPercent { get; protected set; }
         private void Awake()
         {
@@ -27,6 +29,16 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.UI
             fillImage = GenerateMeterCircleObject(voidHudForeground).GetComponent<Image>();
 
             SetFillPercent(0.5f);
+        }
+
+        public void Init(VoidHuntressVoidState state)
+        {
+            m_state = state;
+        }
+
+        private void Update()
+        {
+            SetFillPercent(m_state ? m_state.GetFillPercent() : 0.0f);
         }
 
         static private GameObject GenerateMeterCircleObject(GameObject rootObject)
@@ -56,7 +68,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.UI
 
         public void SetFillPercent(float percent)
         {
-            Log.Warning("[VoidMeterFill] : " + percent);
             m_meterPercent = percent;
             fillImage.fillAmount = m_meterPercent;
         }
