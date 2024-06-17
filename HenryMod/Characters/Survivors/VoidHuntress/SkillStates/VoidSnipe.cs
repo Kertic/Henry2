@@ -8,6 +8,7 @@ using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Unity.Audio;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using static RoR2.BulletAttack;
@@ -24,6 +25,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public static float force = 800f;
         public static float recoil = 3f;
         public static float range = 256f;
+        public static float maxChargeFOV = 120f;
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
 
         private float totalDuration;
@@ -31,12 +33,15 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         private bool hasRang;
         private string muzzleString;
         private VoidHuntressVoidState m_voidState;
+        private CameraTargetParams.CameraParamsOverrideHandle handle;
 
         public override void OnEnter()
         {
             base.OnEnter();
             totalDuration = baseDuration / attackSpeedStat;
             m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
+
+
 
             if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
             {
@@ -60,6 +65,25 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             PlayAnimation("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
             PlayAnimation("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
             float currentChargeRatio = Math.Min(fixedAge / beginFireTime, 1.0f);
+
+
+            CameraTargetParams ctp = base.cameraTargetParams;
+            CharacterCameraParamsData characterCameraParamsData = ctp.currentCameraParamsData;
+            float denom = (1 + fixedAge);
+            float smoothFactor = 8 / Mathf.Pow(denom, 2);
+            Vector3 smoothVector = new Vector3(-3 / 20, 1 / 16, -1);
+            var CameraPosition = ctp.cameraParams.standardLocalCameraPos;
+            characterCameraParamsData.idealLocalCameraPos = CameraPosition + smoothFactor * smoothVector;
+
+            CameraTargetParams.CameraParamsOverrideRequest request = new CameraTargetParams.CameraParamsOverrideRequest
+            {
+                cameraParamsData = characterCameraParamsData,
+                priority = 0,
+            };
+
+            handle = ctp.AddParamsOverride(request);
+            base.cameraTargetParams.RemoveParamsOverride(handle);
+
             if (fixedAge >= beginFireTime)
             {
                 characterBody.SetSpreadBloom(0.0f, false);

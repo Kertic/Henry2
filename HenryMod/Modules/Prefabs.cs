@@ -8,6 +8,7 @@ using static RoR2.CharacterAI.AISkillDriver;
 using RoR2.Skills;
 using System;
 using System.Linq;
+using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 
 namespace Henry2Mod.Modules
 {
@@ -212,6 +213,8 @@ namespace Henry2Mod.Modules
             bodyComponent.hullClassification = HullClassification.Human;
 
             bodyComponent.isChampion = false;
+
+            bodyComponent.gameObject.AddComponent<VoidHuntressVoidState>();
         }
 
         private static Transform AddCharacterModelToSurvivorBody(GameObject bodyPrefab, Transform modelTransform, BodyInfo bodyInfo)

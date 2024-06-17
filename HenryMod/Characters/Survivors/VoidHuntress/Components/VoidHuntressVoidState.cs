@@ -1,9 +1,5 @@
-﻿using Henry2Mod.Characters.Survivors.VoidHuntress.UI;
-using Henry2Mod.Survivors.VoidHuntress;
+﻿using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
@@ -26,15 +22,15 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
             Log.Warning(body);
         }
 
-        private void Awake()
-        {
-
-            Log.Warning("[VoidStateAwake]");
-        }
-
         private void Update()
         {
             CalculateVoidDecay();
+        }
+
+        private void Awake()
+        {
+            CharacterBody body = gameObject.GetComponent<CharacterBody>();
+            Init(body);
         }
 
         private void CalculateVoidDecay()
@@ -55,14 +51,20 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
 
         public void TransitionToVoidState()
         {
+            if (isCorruptModeActive) return;
+
             isCorruptModeActive = true;
             voidMeter = maxVoidMeter;
+            voidStateStartTime = Time.time;
         }
 
         public void TransitionToLunarState()
         {
+            if (!isCorruptModeActive) return;
+
             isCorruptModeActive = false;
             voidMeter = 0;
+            m_body.SetBuffCount(VoidHuntressBuffs.voidSicknessBuff.buffIndex, 1);
             m_body.RemoveBuff(VoidHuntressBuffs.voidSicknessBuff);
         }
 
@@ -74,6 +76,10 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
         public void AddVoidMeter(float value)
         {
             SetVoidMeter(voidMeter + value);
+            if (voidMeter >= maxVoidMeter)
+            {
+                TransitionToVoidState();
+            }
         }
 
         public float GetFillPercent()

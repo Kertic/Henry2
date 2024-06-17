@@ -16,7 +16,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 "VoidSicknessBuff",
                 Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/Common/bdVoidFogMild.asset").WaitForCompletion().iconSprite,
                 Color.magenta,
-                false,
+                true,
                 true);
 
             lunarInsight = Modules.Content.CreateAndAddBuff(

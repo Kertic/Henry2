@@ -114,6 +114,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             bodyPrefab = Prefabs.CreateBodyPrefab(characterModelObject, bodyInfo);
             prefabCharacterBody = bodyPrefab.GetComponent<CharacterBody>();
 
+            Log.Warning("[InitCharBodyPrefab]");
             prefabCharacterModel = Prefabs.SetupCharacterModel(bodyPrefab, customRendererInfos);
 
         }
@@ -142,7 +143,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
         void AdditionalBodySetup()
         {
             // This would be where we add things like the void bow
-            voidHuntressVoidStateRef = bodyPrefab.AddComponent<VoidHuntressVoidState>();
+            voidHuntressVoidStateRef = bodyPrefab.GetComponent<VoidHuntressVoidState>();
+            voidHuntressVoidStateRef.Init(prefabCharacterBody);
         }
 
         public override void InitializeSkills()

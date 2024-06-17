@@ -16,6 +16,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public const float primaryBowVoidMeterGain = 15.0f;
 
+        public const float specialBowVoidMeterGain = 25.0f;
+
         public const float bombDamageCoefficient = 16f;
 
         public const int primaryBowLunarInsightStacks = 1;
