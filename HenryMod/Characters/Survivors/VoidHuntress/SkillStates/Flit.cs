@@ -9,10 +9,11 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
     public class Flit : BaseSkillState
     {
-        public static float duration = 0.5f;
-        public static float minJumpCancelRatio = 0.5f;
-        public static float initialSpeedCoefficient = 5f;
-        public static float finalSpeedCoefficient = 5f;
+        public static float totalDuration = 0.5f;
+        public static float minJumpCancelRatio = 0.8f;
+        public static float minSprintCancelRatio = 0.1f;
+        public static float initialSpeedCoefficient = 3.5f;
+        public static float finalSpeedCoefficient = 4.8f;
 
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
         public static string cancelSoundString = "Play_huntress_shift_end";
@@ -22,12 +23,16 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         private Vector3 blinkVector;
         private Transform modelTransform;
         private CharacterModel characterModel;
-        private float minCancelTime;
+        private float minJumpCancelTime;
+        private float minSprintCancelTime;
+        private bool hasFinishedBlinking;
 
         public override void OnEnter()
         {
             base.OnEnter();
-            minCancelTime = duration * minJumpCancelRatio;
+            hasFinishedBlinking = false;
+            minJumpCancelTime = totalDuration * minJumpCancelRatio;
+            minSprintCancelTime = totalDuration * minSprintCancelRatio;
 
             if (isAuthority && inputBank && characterDirection)
             {
@@ -42,7 +47,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 
             if (NetworkServer.active)
             {
-                characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, duration);
+                characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, totalDuration);
             }
 
             Util.PlaySound(dodgeSoundString, gameObject);
@@ -50,64 +55,50 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
             CreateBlinkEffect(Util.GetCorePosition(gameObject));
         }
 
-        protected virtual Vector3 GetBlinkVector()
-        {
-            blinkDirection = inputBank.aimDirection;
-
-            return blinkDirection;
-        }
-
-        private void CreateBlinkEffect(Vector3 origin)
-        {
-            EffectData effectData = new EffectData();
-            effectData.rotation = Util.QuaternionSafeLookRotation(this.blinkVector);
-            effectData.origin = origin;
-            EffectManager.SpawnEffect(EntityStates.Huntress.BlinkState.blinkPrefab, effectData, false);
-        }
 
         public override void FixedUpdate()
         {
             base.FixedUpdate();
 
             base.characterMotor.velocity = Vector3.zero;
-            base.characterMotor.rootMotion += this.blinkVector * (this.moveSpeedStat * initialSpeedCoefficient * Time.fixedDeltaTime);
+            if (!hasFinishedBlinking)
+            {
+                base.characterMotor.rootMotion += this.blinkVector * (this.moveSpeedStat * initialSpeedCoefficient * Time.fixedDeltaTime);
+            }
 
             if (isAuthority)
             {
-                if (fixedAge >= duration)
+                if (fixedAge >= minSprintCancelTime && inputBank.sprint.down)
                 {
+                    ExitBlink();// After we can crouch cancel, we don't display exit blink unless we're exiting early
                     outer.SetNextStateToMain();
                     return;
                 }
 
-                if (inputBank.jump.down && fixedAge >= minCancelTime)
+                if (fixedAge >= minJumpCancelTime)
                 {
+                    ExitBlink();// After we can jump cancel, we'll just briefly hover before falling down. So display the exit blink
+                    if (inputBank.jump.down)
+                    {
+                        outer.SetNextStateToMain();
+                        return;
+                    }
+                }
+
+                if (fixedAge >= totalDuration)
+                {
+                    ExitBlink();// Someday we just get yeeted back to the floor
                     outer.SetNextStateToMain();
                     return;
                 }
+
 
             }
 
         }
-
-
         public override void OnExit()
         {
             base.OnExit();
-
-            modelTransform = GetModelTransform();
-            if (modelTransform)
-            {
-                characterModel.invisibilityCount--;
-
-                TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
-                temporaryOverlay.duration = 0.6f;
-                temporaryOverlay.animateShaderAlpha = true;
-                temporaryOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-                temporaryOverlay.destroyComponentOnEnd = true;
-                temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlay.mat").WaitForCompletion();
-                temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
-            }
 
             characterMotor.disableAirControlUntilCollision = false;
 
@@ -117,12 +108,6 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
                 characterMotor.velocity = blinkVector * moveSpeedStat * finalSpeedCoefficient;
                 Util.PlaySound(cancelSoundString, gameObject);
             }
-            else
-            {
-                Util.PlaySound(dodgeSoundString, gameObject);
-            }
-
-            CreateBlinkEffect(Util.GetCorePosition(gameObject));
         }
 
         public override void OnSerialize(NetworkWriter writer)
@@ -141,6 +126,46 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             return InterruptPriority.PrioritySkill;
         }
+
+
+        private void ExitBlink()
+        {
+            if (hasFinishedBlinking) return;
+
+            modelTransform = GetModelTransform();
+            if (modelTransform)
+            {
+                characterModel.invisibilityCount--;
+
+                TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+                temporaryOverlay.duration = 0.6f;
+                temporaryOverlay.animateShaderAlpha = true;
+                temporaryOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+                temporaryOverlay.destroyComponentOnEnd = true;
+                temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlay.mat").WaitForCompletion();
+                temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
+            }
+
+            Util.PlaySound(dodgeSoundString, gameObject);
+            CreateBlinkEffect(Util.GetCorePosition(gameObject));
+            hasFinishedBlinking = true;
+        }
+        protected virtual Vector3 GetBlinkVector()
+        {
+            blinkDirection = inputBank.aimDirection;
+
+            return blinkDirection;
+        }
+
+        private void CreateBlinkEffect(Vector3 origin)
+        {
+            EffectData effectData = new EffectData();
+            effectData.rotation = Util.QuaternionSafeLookRotation(this.blinkVector);
+            effectData.origin = origin;
+            EffectManager.SpawnEffect(EntityStates.Huntress.BlinkState.blinkPrefab, effectData, false);
+        }
+
+
 
     }
 }

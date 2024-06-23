@@ -58,7 +58,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public override UnlockableDef characterUnlockableDef => VoidHuntressUnlockables.characterUnlockableDef;
 
-        public override ItemDisplaysBase itemDisplays => new VoidHuntressItemDisplays();
+        public override ItemDisplaysBase itemDisplays => null;// new VoidHuntressItemDisplays();
 
         //set in base classes
         public override AssetBundle assetBundle { get; protected set; }
@@ -181,7 +181,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 skillName = "VoidTouched",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "PASSIVE_NAME",
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "PASSIVE_DESCRIPTION",
-                skillIcon = assetBundle.LoadAsset<Sprite>("texPassiveIcon"),
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Bandit2/ThrowSmokebomb.asset").WaitForCompletion().icon,
             });
 
             Skills.AddSkillsToFamily(passiveGenericSkill.skillFamily, passiveSkillDef1);
@@ -194,14 +194,26 @@ namespace Henry2Mod.Survivors.VoidHuntress
             //here is a basic skill def with all fields accounted for
             var m_primarySkill = Skills.CreateSkillDef(new SkillDefInfo
                 (
+                "LunarBow",
+                VOIDHUNTRESS_PREFIX + "LUNAR_BOW_NAME",
+                VOIDHUNTRESS_PREFIX + "LUNAR_BOW_DESCRIPTION",
+                Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/AimArrowSnipe.asset").WaitForCompletion().icon,
+                new EntityStates.SerializableEntityStateType(typeof(LunarSnipe)))
+            );
+            m_primarySkill.canceledFromSprinting = true;
+            m_primarySkill.cancelSprintingOnActivation = true;
+
+            var overridePrimarySkill = skillDefOverrides[(int)SkillOverrideTypes.Primary] = Skills.CreateSkillDef(new SkillDefInfo
+            (
                 "VoidBow",
                 VOIDHUNTRESS_PREFIX + "VOID_BOW_NAME",
                 VOIDHUNTRESS_PREFIX + "VOID_BOW_DESCRIPTION",
-                assetBundle.LoadAsset<Sprite>("texPistolIcon"),
+                Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/FireArrowSnipe.asset").WaitForCompletion().icon,
                 new EntityStates.SerializableEntityStateType(typeof(VoidSnipe)))
             );
             m_primarySkill.canceledFromSprinting = true;
             m_primarySkill.cancelSprintingOnActivation = true;
+
 
             Skills.AddPrimarySkills(bodyPrefab, m_primarySkill);
 
@@ -218,46 +230,14 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 skillNameToken = VOIDHUNTRESS_PREFIX + "FLIT_NAME",
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "FLIT_DESCRIPTION",
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
-                skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/HuntressBodyBlink.asset").WaitForCompletion().icon,
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
 
                 activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 3f,
-                baseMaxStock = 2,
-
-                rechargeStock = 2,
-                requiredStock = 1,
-                stockToConsume = 1,
-
-                resetCooldownTimerOnUse = false,
-                fullRestockOnAssign = false,
-                dontAllowPastMaxStocks = true,
-                mustKeyPress = false,
-                beginSkillCooldownOnSkillEnd = true,
-
-                isCombatSkill = false,
-                canceledFromSprinting = false,
-                cancelSprintingOnActivation = false,
-                forceSprintDuringState = false,
-            });
-
-            var voidFlitSkillDef = skillDefOverrides[(int)SkillOverrideTypes.Secondary] = Skills.CreateSkillDef(new SkillDefInfo
-            {
-                skillName = "VoidFlit",
-                skillNameToken = VOIDHUNTRESS_PREFIX + "VOID_FLIT_NAME",
-                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "VOID_FLIT_DESCRIPTION",
-                keywordTokens = new string[] { "KEYWORD_AGILE" },
-                skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
-
-                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidFlit)),
-
-                activationStateMachineName = "Weapon3",
-                interruptPriority = EntityStates.InterruptPriority.Skill,
-
-                baseRechargeInterval = 1.5f,
+                baseRechargeInterval = 4f,
                 baseMaxStock = 2,
 
                 rechargeStock = 1,
@@ -272,7 +252,39 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 isCombatSkill = false,
                 canceledFromSprinting = false,
-                cancelSprintingOnActivation = false,
+                cancelSprintingOnActivation = true,
+                forceSprintDuringState = false,
+            });
+
+            var voidFlitSkillDef = skillDefOverrides[(int)SkillOverrideTypes.Secondary] = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "VoidFlit",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "VOID_FLIT_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "VOID_FLIT_DESCRIPTION",
+                keywordTokens = new string[] { "KEYWORD_AGILE" },
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/HuntressBodyMiniBlink.asset").WaitForCompletion().icon,
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidFlit)),
+
+                activationStateMachineName = "Weapon3",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
+
+                baseRechargeInterval = 6f,
+                baseMaxStock = 3,
+
+                rechargeStock = 3,
+                requiredStock = 1,
+                stockToConsume = 1,
+
+                resetCooldownTimerOnUse = false,
+                fullRestockOnAssign = false,
+                dontAllowPastMaxStocks = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+
+                isCombatSkill = false,
+                canceledFromSprinting = false,
+                cancelSprintingOnActivation = true,
                 forceSprintDuringState = false,
             });
 
@@ -299,8 +311,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
-                baseRechargeInterval = 1f,
-                baseMaxStock = 2,
+                baseRechargeInterval = 7f,
+                baseMaxStock = 1,
 
                 rechargeStock = 1,
                 requiredStock = 1,
@@ -326,14 +338,14 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
                 skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Merc/MercBodyFocusedAssault.asset").WaitForCompletion().icon,
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(StormArrow)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidMultiShot)),
 
                 //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
                 activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
                 baseRechargeInterval = 1f,
-                baseMaxStock = 2,
+                baseMaxStock = 8,
 
                 rechargeStock = 1,
                 requiredStock = 1,
@@ -363,37 +375,35 @@ namespace Henry2Mod.Survivors.VoidHuntress
             Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Special);
 
             //a basic skill. some fields are omitted and will just have default values
-            SkillDef specialSkillDef1 =
-                VoidBomb.skillDef =
-                Skills.CreateSkillDef(new SkillDefInfo
-                {
-                    skillName = "HenryBomb",
-                    skillNameToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_NAME",
-                    skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
-                    skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
+            SkillDef specialSkillDef1 = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "HenryBomb",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
+                skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
 
-                    activationState = new EntityStates.SerializableEntityStateType(typeof(VoidBomb)),
-                    activationStateMachineName = "Weapon",
-                    interruptPriority = EntityStates.InterruptPriority.Skill,
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidBomb)),
+                activationStateMachineName = "Weapon",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                    baseRechargeInterval = 10f,
-                    baseMaxStock = 1,
+                baseRechargeInterval = 10f,
+                baseMaxStock = 1,
 
-                    rechargeStock = 1,
-                    requiredStock = 1,
-                    stockToConsume = 1,
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
 
-                    isCombatSkill = true,
-                    mustKeyPress = false,
-                    beginSkillCooldownOnSkillEnd = true,
-                });
+                isCombatSkill = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+            });
 
             EnterVoidFormSkillDef specialSkillDef2 = Skills.CreateSkillDef<EnterVoidFormSkillDef>(new SkillDefInfo
             {
                 skillName = "Invert",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "INVERT_NAME",
                 skillDescriptionToken = VOIDHUNTRESS_PREFIX + "INVERT_DESCRIPTION",
-                skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Bandit2/ThrowSmokebomb.asset").WaitForCompletion().icon,
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(EnterVoidForm)),
                 activationStateMachineName = "Body",
@@ -545,6 +555,11 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 args.armorAdd += 300;
             }
             */
+
+            if (sender.HasBuff(VoidHuntressBuffs.voidSicknessBuff))
+            {
+                args.baseAttackSpeedAdd += 0.07f * sender.GetBuffCount(VoidHuntressBuffs.voidSicknessBuff);
+            }
         }
 
 

@@ -9,10 +9,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
         // armor buff gained during roll
         public static BuffDef voidSicknessBuff;
         public static BuffDef quickShot;
-        public static BuffDef adsUptime;
+        public static BuffDef voidShot;
 
         public static int quickShotMaxStacksPerSecondaryCharge = 3;
-
+        public static int voidShotMaxStacks = 2;
         public static void Init()
         {
             voidSicknessBuff = Modules.Content.CreateAndAddBuff(
@@ -29,10 +29,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
                  true,
                  false);
 
-            adsUptime = Modules.Content.CreateAndAddBuff(
-                "VoidHuntressAdsUptime",
+            voidShot = Modules.Content.CreateAndAddBuff(
+                "VoidHuntressVoidShot",
                  Addressables.LoadAssetAsync<BuffDef>("RoR2/Base/CritOnUse/bdFullCrit.asset").WaitForCompletion().iconSprite,
-                 Color.blue,
+                 Color.magenta,
                  true,
                  false);
 

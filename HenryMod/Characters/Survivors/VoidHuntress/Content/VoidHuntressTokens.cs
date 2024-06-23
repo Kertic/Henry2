@@ -53,32 +53,36 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             #region Passive
             Language.Add(prefix + "PASSIVE_NAME", "Void Huntress Passive");
-            Language.Add(prefix + "PASSIVE_DESCRIPTION", "You gain Corruption as you fire your Bow, which enables you to enter Void Form. You can maintain it indefinitely, but the " + VOID_SICKNESS + " will eventually cause you to revert as it increases the speed of decay");
+            Language.Add(prefix + "PASSIVE_DESCRIPTION", "You gain Corruption as you fire your Bow, which enables you to enter Void Form. You can maintain it indefinitely, gaining increasing attack speed, but the " + VOID_SICKNESS + " will eventually cause you to revert as it increases the speed of decay");
             #endregion
 
             #region Primary
-            Language.Add(prefix + "PRIMARY_1_NAME", "Bow shot");
-            Language.Add(prefix + "PRIMARY_1_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowLunarInsightStacks} lunar insight stacks</style>. If you have Quick Shot, you charge up instantly and reduce your cooldowns by 1 second.");
-            #endregion
+            Language.Add(prefix + "LUNAR_BOW_NAME", "Lunar bow");
+            Language.Add(prefix + "LUNAR_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowVoidMeterGain} Corruption</style>. If you have Quick Shot, you charge up instantly.");
 
-            #region Primary2
-            Language.Add(prefix + "PRIMARY_SLASH_NAME", "Sword");
-            Language.Add(prefix + "PRIMARY_SLASH_DESCRIPTION", Tokens.agilePrefix + $"Swing forward for <style=cIsDamage>{100f * VoidHuntressStaticValues.swordDamageCoefficient}% damage</style>.");
+            Language.Add(prefix + "VOID_BOW_NAME", "Void Bow");
+            Language.Add(prefix + "VOID_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowVoidMeterGain} Corruption</style>. If you have Void Shot, you reduce your cooldowns.");
             #endregion
 
             #region Secondary
-            Language.Add(prefix + "SECONDARY_1_NAME", "");
-            Language.Add(prefix + "SECONDARY_1_DESCRIPTION", Tokens.agilePrefix + $"Dash quickly to evade attacks, and gain 1 Quick Shot");
+            Language.Add(prefix + "FLIT_NAME", "Flit");
+            Language.Add(prefix + "FLIT_DESCRIPTION", Tokens.agilePrefix + $"Dash quickly to evade attacks. Hold JUMP to launch yourself out of the blink, and time it perfectly for extra momentum. Press SPRINT to stop the dash early." );
+
+            Language.Add(prefix + "VOID_FLIT_NAME", "Void Fade");
+            Language.Add(prefix + "VOID_FLIT_DESCRIPTION", Tokens.agilePrefix + $"Dash quickly to evade attacks. Hold JUMP to launch yourself out of the blink, and time it perfectly for extra momentum. Press SPRINT to stop the dash early. Recharges all charges at once." );
             #endregion
 
             #region Utility
-            Language.Add(prefix + "UTILITY_ROLL_NAME", "Roll");
-            Language.Add(prefix + "UTILITY_ROLL_DESCRIPTION", "Roll a short distance, gaining <style=cIsUtility>300 armor</style>. <style=cIsUtility>You cannot be hit during the roll.</style>");
+            Language.Add(prefix + "ARROW_FLURRY_NAME", "Barrage");
+            Language.Add(prefix + "ARROW_FLURRY_DESCRIPTION", $"Activate to allow yourself to rapidly fire <style=cIsUtility>{VoidHuntressStaticValues.barrageStacks} arrows.</style>. Hitting attacks reduces this cooldown by <style=cIsUtility>{VoidHuntressStaticValues.primaryAttackCDRInSeconds}</style>");
+
+            Language.Add(prefix + "VOID_ARROW_FLURRY_NAME", "Void Barrage");
+            Language.Add(prefix + "VOID_ARROW_FLURRY_DESCRIPTION", $"Activate to rapidly fire all stacks for <style=cIsUtility>{VoidHuntressStaticValues.multiShotBowDamageCoefficient}% damage</style>. Activiating this skill only gives <style=cIsUtility>1 Void Shot</style> but it can be activated at less than max stacks.");
             #endregion
 
             #region Special
-            Language.Add(prefix + "SPECIAL_BOMB_NAME", "Bomb");
-            Language.Add(prefix + "SPECIAL_BOMB_DESCRIPTION", $"Throw a bomb for <style=cIsDamage>{100f * VoidHuntressStaticValues.bombDamageCoefficient}% damage</style>.");
+            Language.Add(prefix + "INVERT_NAME", "Invert");
+            Language.Add(prefix + "INVERT_DESCRIPTION", $"Enter Void Form, gaining <style=cIsDamage> 0.75 Attack Speed for each second in Void Form</style>. However, this benefit also increases the rate at which void form fades.");
             #endregion
 
             #region Achievements

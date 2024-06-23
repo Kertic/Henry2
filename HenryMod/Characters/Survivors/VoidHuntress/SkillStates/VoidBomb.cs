@@ -17,7 +17,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
         public static float DamageCoefficient = 16f;
 
-        public static SkillDef skillDef;
 
         private VoidHuntressVoidState m_voidState;
 

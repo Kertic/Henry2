@@ -50,6 +50,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
         private Transform modelTransform;
         private CharacterModel characterModel;
+        private TemporaryOverlay continuallyOverlay;
         private float vanishTime;
         private float reappearTime;
 
@@ -75,6 +76,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             if (NetworkServer.active)
             {
                 characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, baseDuration);
+                characterBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, baseDuration);
             }
 
         }
@@ -137,9 +139,21 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             temporaryOverlay.destroyComponentOnEnd = true;
             temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlayCorrupted.mat").WaitForCompletion();
             temporaryOverlay.AddToCharacerModel(characterModel);
-
-
         }
 
+        private void ToggleActiveAura(bool isActive)
+        {
+            continuallyOverlay.RemoveFromCharacterModel();
+            if (isActive)
+            {
+                continuallyOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+                continuallyOverlay.duration = 600f;
+                continuallyOverlay.animateShaderAlpha = true;
+                continuallyOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 1f);
+                continuallyOverlay.destroyComponentOnEnd = true;
+                continuallyOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlayCorrupted.mat").WaitForCompletion();
+                continuallyOverlay.AddToCharacerModel(characterModel);
+            }
+        }
     }
 }

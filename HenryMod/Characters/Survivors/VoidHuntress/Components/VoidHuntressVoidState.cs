@@ -3,7 +3,9 @@ using Henry2Mod.Survivors.VoidHuntress;
 using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 using RoR2;
 using RoR2.Skills;
+using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
 {
@@ -28,6 +30,10 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
         private void Update()
         {
             CalculateVoidDecay();
+            if (isCorruptModeActive)
+            {
+
+            }
         }
 
         private void Awake()
@@ -62,7 +68,21 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
             Log.Warning("[Void Transition]");
             Log.Warning(m_body.skillLocator.utility);
 
+            m_body.SetBuffCount(VoidHuntressBuffs.quickShot.buffIndex, 1);
+            m_body.RemoveBuff(VoidHuntressBuffs.quickShot);
+
+
+            m_body.skillLocator.primary.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Primary], GenericSkill.SkillOverridePriority.Upgrade);
             m_body.skillLocator.utility.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
+            m_body.skillLocator.secondary.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Secondary], GenericSkill.SkillOverridePriority.Upgrade);
+
+            foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
+            {
+                m_body.skillLocator.GetSkill(item).stock = m_body.skillLocator.GetSkill(item).maxStock;
+            }
+
+
+
         }
 
         public void TransitionToLunarState()
@@ -71,8 +91,23 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
 
             isCorruptModeActive = false;
             voidMeter = 0;
+
             m_body.SetBuffCount(VoidHuntressBuffs.voidSicknessBuff.buffIndex, 1);
             m_body.RemoveBuff(VoidHuntressBuffs.voidSicknessBuff);
+            m_body.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, 1);
+            m_body.RemoveBuff(VoidHuntressBuffs.voidShot);
+
+
+            m_body.skillLocator.primary.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Primary], GenericSkill.SkillOverridePriority.Upgrade);
+            m_body.skillLocator.utility.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
+            m_body.skillLocator.secondary.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Secondary], GenericSkill.SkillOverridePriority.Upgrade);
+
+            foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
+            {
+                m_body.skillLocator.GetSkill(item).stock = m_body.skillLocator.GetSkill(item).maxStock;
+            }
+
+
         }
 
         public void SetVoidMeter(float value)

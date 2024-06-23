@@ -12,14 +12,14 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
         public static float damageCoefficient = VoidHuntressStaticValues.primaryBowDamageCoefficient;
         public static float procCoefficient = 1f;
-        public static float baseDuration = 0.5f;
+        public static float baseDuration = 0.01f;
         public static string activateSound = "Play_railgunner_m2_scope_in";
-        public static int stacksGainedOnUse = 1;
+        public static int stacksGainedOnUse = 6;
 
         protected int buffsToAdd;
         public override void OnEnter()
         {
-            int maxBuffs = stacksGainedOnUse * skillLocator.secondary.maxStock;
+            int maxBuffs = 6;
             int currentBuffs = characterBody.GetBuffCount(VoidHuntressBuffs.quickShot);
             buffsToAdd = Mathf.Min(maxBuffs - currentBuffs, stacksGainedOnUse);
 
