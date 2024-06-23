@@ -144,6 +144,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
         {
             // This would be where we add things like the void bow
             voidHuntressVoidStateRef = bodyPrefab.GetComponent<VoidHuntressVoidState>();
+
             voidHuntressVoidStateRef.Init(prefabCharacterBody);
         }
 
@@ -198,8 +199,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
         {
             Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Secondary);
 
-            //here is a basic skill def with all fields accounted for
-            var m_secondarySkill = Skills.CreateSkillDef(new SkillDefInfo
+ 
+            VoidVolleySkillDef volley;
+
+            VoidVolley.skillDef = volley = Skills.CreateSkillDef<VoidVolleySkillDef>(new SkillDefInfo
             {
                 skillName = "VoidSeeker",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "SECONDARY_1_NAME",
@@ -207,10 +210,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
                 skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidVolley)),
 
                 //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon",
+                activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 1f,
@@ -221,7 +224,50 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 stockToConsume = 1,
 
                 resetCooldownTimerOnUse = false,
-                fullRestockOnAssign = true,
+                fullRestockOnAssign = false,
+                dontAllowPastMaxStocks = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+
+                isCombatSkill = true,
+                canceledFromSprinting = false,
+                cancelSprintingOnActivation = false,
+                forceSprintDuringState = false,
+            });
+
+
+            Skills.AddSecondarySkills(bodyPrefab, volley);
+
+        }
+
+        private void AddUtiitySkills()
+        {
+            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Utility);
+
+            //here is a basic skill def with all fields accounted for
+            SkillDef flitSkillDef = Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "Flit",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "FLIT_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "FLIT_DESCRIPTION",
+                keywordTokens = new string[] { "KEYWORD_AGILE" },
+                skillIcon = assetBundle.LoadAsset<Sprite>("texSecondaryIcon"),
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
+
+                //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
+                activationStateMachineName = "Body",
+                interruptPriority = EntityStates.InterruptPriority.Skill,
+
+                baseRechargeInterval = 1f,
+                baseMaxStock = 2,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
+
+                resetCooldownTimerOnUse = false,
+                fullRestockOnAssign = false,
                 dontAllowPastMaxStocks = true,
                 mustKeyPress = false,
                 beginSkillCooldownOnSkillEnd = true,
@@ -233,46 +279,41 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             });
 
-            Skills.AddSecondarySkills(bodyPrefab, m_secondarySkill);
-
-        }
-
-        private void AddUtiitySkills()
-        {
-            Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Utility);
 
             //here's a skilldef of a typical movement skill.
-            SkillDef utilitySkillDef1 = Skills.CreateSkillDef(new SkillDefInfo
-            {
-                skillName = "HenryRoll",
-                skillNameToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_NAME",
-                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_DESCRIPTION",
-                skillIcon = assetBundle.LoadAsset<Sprite>("texUtilityIcon"),
+            SkillDef utilitySkillDef1 =
+                Backflip.skillDef =
+                Skills.CreateSkillDef(new SkillDefInfo
+                {
+                    skillName = "HenryRoll",
+                    skillNameToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_NAME",
+                    skillDescriptionToken = VOIDHUNTRESS_PREFIX + "UTILITY_ROLL_DESCRIPTION",
+                    skillIcon = assetBundle.LoadAsset<Sprite>("texUtilityIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(Backflip)),
-                activationStateMachineName = "Body",
-                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+                    activationState = new EntityStates.SerializableEntityStateType(typeof(Backflip)),
+                    activationStateMachineName = "Body",
+                    interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
-                baseRechargeInterval = 10f,
-                baseMaxStock = 1,
+                    baseRechargeInterval = 10f,
+                    baseMaxStock = 1,
 
-                rechargeStock = 1,
-                requiredStock = 1,
-                stockToConsume = 1,
+                    rechargeStock = 1,
+                    requiredStock = 1,
+                    stockToConsume = 1,
 
-                resetCooldownTimerOnUse = false,
-                fullRestockOnAssign = true,
-                dontAllowPastMaxStocks = false,
-                mustKeyPress = false,
-                beginSkillCooldownOnSkillEnd = false,
+                    resetCooldownTimerOnUse = false,
+                    fullRestockOnAssign = true,
+                    dontAllowPastMaxStocks = false,
+                    mustKeyPress = false,
+                    beginSkillCooldownOnSkillEnd = false,
 
-                isCombatSkill = false,
-                canceledFromSprinting = false,
-                cancelSprintingOnActivation = false,
-                forceSprintDuringState = false,
-            });
+                    isCombatSkill = false,
+                    canceledFromSprinting = false,
+                    cancelSprintingOnActivation = false,
+                    forceSprintDuringState = false,
+                });
 
-            Skills.AddUtilitySkills(bodyPrefab, utilitySkillDef1);
+            Skills.AddUtilitySkills(bodyPrefab, flitSkillDef);
 
         }
 
@@ -281,28 +322,30 @@ namespace Henry2Mod.Survivors.VoidHuntress
             Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Special);
 
             //a basic skill. some fields are omitted and will just have default values
-            SkillDef specialSkillDef1 = Skills.CreateSkillDef(new SkillDefInfo
-            {
-                skillName = "HenryBomb",
-                skillNameToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_NAME",
-                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
-                skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
+            SkillDef specialSkillDef1 =
+                VoidBomb.skillDef =
+                Skills.CreateSkillDef(new SkillDefInfo
+                {
+                    skillName = "HenryBomb",
+                    skillNameToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_NAME",
+                    skillDescriptionToken = VOIDHUNTRESS_PREFIX + "SPECIAL_BOMB_DESCRIPTION",
+                    skillIcon = assetBundle.LoadAsset<Sprite>("texSpecialIcon"),
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidBomb)),
-                activationStateMachineName = "Weapon",
-                interruptPriority = EntityStates.InterruptPriority.Skill,
+                    activationState = new EntityStates.SerializableEntityStateType(typeof(VoidBomb)),
+                    activationStateMachineName = "Weapon",
+                    interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 10f,
-                baseMaxStock = 1,
+                    baseRechargeInterval = 10f,
+                    baseMaxStock = 1,
 
-                rechargeStock = 1,
-                requiredStock = 1,
-                stockToConsume = 1,
+                    rechargeStock = 1,
+                    requiredStock = 1,
+                    stockToConsume = 1,
 
-                isCombatSkill = true,
-                mustKeyPress = false,
-                beginSkillCooldownOnSkillEnd = true,
-            });
+                    isCombatSkill = true,
+                    mustKeyPress = false,
+                    beginSkillCooldownOnSkillEnd = true,
+                });
 
             Skills.AddSpecialSkills(bodyPrefab, specialSkillDef1);
         }

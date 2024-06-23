@@ -1,6 +1,7 @@
 using EntityStates;
 using RoR2;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
@@ -8,98 +9,120 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
     public class Flit : BaseSkillState
     {
         public static float duration = 0.5f;
+        public static float minJumpCancelRatio = 0.5f;
         public static float initialSpeedCoefficient = 5f;
-        public static float finalSpeedCoefficient = 2.5f;
+        public static float finalSpeedCoefficient = 5f;
 
-        public static string dodgeSoundString = "HenryRoll";
-        public static float dodgeFOV = global::EntityStates.Commando.DodgeState.dodgeFOV;
+        public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
+        public static string cancelSoundString = "Play_huntress_shift_end";
 
-        private float rollSpeed;
-        private Vector3 forwardDirection;
-        private Animator animator;
-        private Vector3 previousPosition;
+        private Vector3 blinkDirection;
+        private Vector3 blinkVector;
+        private Transform modelTransform;
+        private float minCancelTime;
 
         public override void OnEnter()
         {
             base.OnEnter();
-            animator = GetModelAnimator();
+            minCancelTime = duration * minJumpCancelRatio;
 
             if (isAuthority && inputBank && characterDirection)
             {
-                forwardDirection = (inputBank.moveVector == Vector3.zero ? characterDirection.forward : inputBank.moveVector).normalized;
+                blinkVector = GetBlinkVector();
             }
-
-            RecalculateRollSpeed();
-
-            if (characterMotor && characterDirection)
-            {
-                characterMotor.velocity.y = 0f;
-                characterMotor.velocity = forwardDirection * rollSpeed;
-            }
-
-            Vector3 b = characterMotor ? characterMotor.velocity : Vector3.zero;
-            previousPosition = transform.position - b;
-
-            PlayAnimation("FullBody, Override", "Roll", "Roll.playbackRate", duration);
-            Util.PlaySound(dodgeSoundString, gameObject);
 
             if (NetworkServer.active)
             {
-                characterBody.AddBuff(VoidHuntressBuffs.lunarInsight);
+                characterBody.AddBuff(VoidHuntressBuffs.quickShot);
                 characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.5f * duration);
             }
+
+            Util.PlaySound(dodgeSoundString, gameObject);
+
+            CreateBlinkEffect(Util.GetCorePosition(gameObject));
         }
 
-        private void RecalculateRollSpeed()
+        protected virtual Vector3 GetBlinkVector()
         {
-            rollSpeed = moveSpeedStat * Mathf.Lerp(initialSpeedCoefficient, finalSpeedCoefficient, fixedAge / duration);
+            blinkDirection = inputBank.aimDirection;
+
+            return blinkDirection;
+        }
+
+        private void CreateBlinkEffect(Vector3 origin)
+        {
+            EffectData effectData = new EffectData();
+            effectData.rotation = Util.QuaternionSafeLookRotation(this.blinkVector);
+            effectData.origin = origin;
+            EffectManager.SpawnEffect(EntityStates.Huntress.BlinkState.blinkPrefab, effectData, false);
         }
 
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-            RecalculateRollSpeed();
 
-            if (characterDirection) characterDirection.forward = forwardDirection;
-            if (cameraTargetParams) cameraTargetParams.fovOverride = Mathf.Lerp(dodgeFOV, 60f, fixedAge / duration);
+            base.characterMotor.velocity = Vector3.zero;
+            base.characterMotor.rootMotion += this.blinkVector * (this.moveSpeedStat * initialSpeedCoefficient * Time.fixedDeltaTime);
 
-            Vector3 normalized = (transform.position - previousPosition).normalized;
-            if (characterMotor && characterDirection && normalized != Vector3.zero)
+            if (isAuthority)
             {
-                Vector3 vector = normalized * rollSpeed;
-                float d = Mathf.Max(Vector3.Dot(vector, forwardDirection), 0f);
-                vector = forwardDirection * d;
-                vector.y = 0f;
+                if (fixedAge >= duration)
+                {
+                    outer.SetNextStateToMain();
+                    return;
+                }
 
-                characterMotor.velocity = vector;
-            }
-            previousPosition = transform.position;
+                if (inputBank.jump.down && fixedAge >= minCancelTime)
+                {
+                    outer.SetNextStateToMain();
+                    return;
+                }
 
-            if (isAuthority && fixedAge >= duration)
-            {
-                outer.SetNextStateToMain();
-                return;
             }
+
         }
+
 
         public override void OnExit()
         {
-            if (cameraTargetParams) cameraTargetParams.fovOverride = -1f;
+            modelTransform = GetModelTransform();
+            if (this.modelTransform)
+            {
+                TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+                temporaryOverlay.duration = 1.6f;
+                temporaryOverlay.animateShaderAlpha = true;
+                temporaryOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+                temporaryOverlay.destroyComponentOnEnd = true;
+                temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlay.mat").WaitForCompletion();
+                temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
+            }
             base.OnExit();
 
             characterMotor.disableAirControlUntilCollision = false;
+
+            if (inputBank.jump.down)
+            {
+                blinkVector = GetBlinkVector();
+                characterMotor.velocity = blinkVector * moveSpeedStat * finalSpeedCoefficient;
+                Util.PlaySound(cancelSoundString, gameObject);
+            }
+            else
+            {
+                Util.PlaySound(dodgeSoundString, gameObject);
+            }
+
         }
 
         public override void OnSerialize(NetworkWriter writer)
         {
             base.OnSerialize(writer);
-            writer.Write(forwardDirection);
+            writer.Write(blinkDirection);
         }
 
         public override void OnDeserialize(NetworkReader reader)
         {
             base.OnDeserialize(reader);
-            forwardDirection = reader.ReadVector3();
+            blinkDirection = reader.ReadVector3();
         }
 
         public override InterruptPriority GetMinimumInterruptPriority()

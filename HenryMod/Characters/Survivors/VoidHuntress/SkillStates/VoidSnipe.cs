@@ -4,6 +4,7 @@ using EntityStates.Huntress.HuntressWeapon;
 using EntityStates.LunarWisp;
 using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
+using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidSnipe : BaseSkillState
     {
-
         public static float damageCoefficient = VoidHuntressStaticValues.primaryBowDamageCoefficient;
         public static float procCoefficient = 1f;
         public static float baseDuration = 0.72f;
@@ -41,16 +41,18 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             totalDuration = baseDuration / attackSpeedStat;
             m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
 
+            if (base.isAuthority && base.skillLocator)
+            {
+                base.skillLocator.secondary.SetSkillOverride(this, VoidVolley.skillDef, GenericSkill.SkillOverridePriority.Upgrade);
+            }
 
-
-            if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
+            if (characterBody.HasBuff(VoidHuntressBuffs.quickShot))
             {
                 beginFireTime = 0.25f * totalDuration;
             }
             else
             {
                 beginFireTime = firePercentTime * totalDuration;
-                Util.PlayAttackSpeedSound("Play_huntress_m1_ready", base.gameObject, base.attackSpeedStat);
             }
 
             hasRang = false;
@@ -64,16 +66,15 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
             PlayAnimation("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
             PlayAnimation("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
+
             float currentChargeRatio = Math.Min(fixedAge / beginFireTime, 1.0f);
-
-
             CameraTargetParams ctp = base.cameraTargetParams;
             CharacterCameraParamsData characterCameraParamsData = ctp.currentCameraParamsData;
             float denom = (1 + fixedAge);
             float smoothFactor = 8 / Mathf.Pow(denom, 2);
-            Vector3 smoothVector = new Vector3(-3 / 20, 1 / 16, -1);
+            Vector3 finalPosition = new Vector3(-3 / 20 * 0.25f, 1 / 16, -1);
             var CameraPosition = ctp.cameraParams.standardLocalCameraPos;
-            characterCameraParamsData.idealLocalCameraPos = CameraPosition + smoothFactor * smoothVector;
+            characterCameraParamsData.idealLocalCameraPos = CameraPosition + (smoothFactor * finalPosition);
 
             CameraTargetParams.CameraParamsOverrideRequest request = new CameraTargetParams.CameraParamsOverrideRequest
             {
@@ -87,7 +88,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             if (fixedAge >= beginFireTime)
             {
                 characterBody.SetSpreadBloom(0.0f, false);
-                EffectManager.SimpleMuzzleFlash(FireFlurrySeekingArrow.critMuzzleflashEffectPrefab, gameObject, muzzleString, false);
                 RingBell();
             }
             else
@@ -97,15 +97,24 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             }
 
 
-            if ((!base.inputBank || !base.inputBank.skill1.down) && base.isAuthority)
+            if (isAuthority)
             {
-                if (fixedAge < beginFireTime)
+                if (inputBank)
                 {
-                    Util.PlayAttackSpeedSound("Play_huntress_m1_unready", base.gameObject, base.attackSpeedStat);
+                    if (!inputBank.skill1.down)
+                    {
+                        outer.SetNextStateToMain();
+                        return;
+                    }
+                    if (characterBody.HasBuff(VoidHuntressBuffs.quickShot))
+                    {
+                        if (fixedAge >= beginFireTime)
+                        {
+                            outer.SetNextStateToMain();
+                            return;
+                        }
+                    }
                 }
-
-                outer.SetNextStateToMain();
-                return;
             }
 
         }
@@ -117,6 +126,12 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             {
                 Fire();
             }
+
+            if (base.isAuthority && base.skillLocator)
+            {
+                base.skillLocator.secondary.UnsetSkillOverride(this, VoidVolley.skillDef, GenericSkill.SkillOverridePriority.Upgrade);
+            }
+
 
             base.OnExit();
         }
@@ -170,9 +185,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
             bulletAtk.Fire();
 
-            if (characterBody.HasBuff(VoidHuntressBuffs.lunarInsight))
+            if (characterBody.HasBuff(VoidHuntressBuffs.quickShot))
             {
-                characterBody.SetBuffCount(VoidHuntressBuffs.lunarInsight.buffIndex, characterBody.GetBuffCount(VoidHuntressBuffs.lunarInsight) - 1);
+                characterBody.SetBuffCount(VoidHuntressBuffs.quickShot.buffIndex, characterBody.GetBuffCount(VoidHuntressBuffs.quickShot) - 1);
                 foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
                 {
                     characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStaticValues.primaryAttackCDRInSeconds);

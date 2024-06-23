@@ -1,11 +1,13 @@
 using EntityStates;
 using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.Henry;
+using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
 using RoR2.Projectile;
+using RoR2.Skills;
 using UnityEngine;
 
-namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
+namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidBomb : GenericProjectileBaseState
     {
@@ -14,6 +16,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public static float strikePointPercent = 0f;
 
         public static float DamageCoefficient = 16f;
+
+        public static SkillDef skillDef;
 
         private VoidHuntressVoidState m_voidState;
 
@@ -58,7 +62,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             if (GetModelAnimator())
             {
-                PlayAnimation("Gesture, Override", "ThrowBomb", "ThrowBomb.playbackRate", this.duration);
+                PlayAnimation("Gesture, Override", "ThrowBomb", "ThrowBomb.playbackRate", duration);
             }
 
             base.FireProjectile();
