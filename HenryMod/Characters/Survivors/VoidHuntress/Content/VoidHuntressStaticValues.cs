@@ -10,7 +10,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         public const float primaryAttackCDRInSeconds = 1.0f;
 
-        public const float primaryBowMovementSlowPenalty = 0.1f;
+        public const float primaryBowMovementSlowPenalty = 0.7f;
 
         public const float multiShotBowDamageCoefficient = primaryBowDamageCoefficient / 3.0f;
 

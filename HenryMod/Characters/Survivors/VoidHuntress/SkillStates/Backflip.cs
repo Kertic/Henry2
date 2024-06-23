@@ -77,6 +77,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
             if (fixedAge >= duration && isAuthority)
             {
                 outer.SetNextStateToMain();
+                return;
             }
         }
 

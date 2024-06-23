@@ -41,11 +41,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             totalDuration = baseDuration / attackSpeedStat;
             m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
 
-            if (base.isAuthority && base.skillLocator)
-            {
-                base.skillLocator.secondary.SetSkillOverride(this, VoidVolley.skillDef, GenericSkill.SkillOverridePriority.Upgrade);
-            }
-
             if (characterBody.HasBuff(VoidHuntressBuffs.quickShot))
             {
                 beginFireTime = 0.25f * totalDuration;
@@ -126,12 +121,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             {
                 Fire();
             }
-
-            if (base.isAuthority && base.skillLocator)
-            {
-                base.skillLocator.secondary.UnsetSkillOverride(this, VoidVolley.skillDef, GenericSkill.SkillOverridePriority.Upgrade);
-            }
-
 
             base.OnExit();
         }

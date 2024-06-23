@@ -1,5 +1,8 @@
-﻿using Henry2Mod.Survivors.VoidHuntress;
+﻿using Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates;
+using Henry2Mod.Survivors.VoidHuntress;
+using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 using RoR2;
+using RoR2.Skills;
 using UnityEngine;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
@@ -12,14 +15,14 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
         public float voidStateStartTime;
         public bool isCorruptModeActive;
         private CharacterBody m_body;
+        private SkillDef[] m_overrides;
 
-        public void Init(CharacterBody body)
+        public void Init(CharacterBody body, SkillDef[] overrides)
         {
             voidMeter = 0.0f;
             isCorruptModeActive = false;
             m_body = body;
-            Log.Warning("[VoidStateInit]");
-            Log.Warning(body);
+            m_overrides = overrides;
         }
 
         private void Update()
@@ -30,7 +33,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
         private void Awake()
         {
             CharacterBody body = gameObject.GetComponent<CharacterBody>();
-            Init(body);
         }
 
         private void CalculateVoidDecay()
@@ -56,6 +58,11 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
             isCorruptModeActive = true;
             voidMeter = maxVoidMeter;
             voidStateStartTime = Time.time;
+
+            Log.Warning("[Void Transition]");
+            Log.Warning(m_body.skillLocator.utility);
+
+            m_body.skillLocator.utility.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
         }
 
         public void TransitionToLunarState()
@@ -76,15 +83,16 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
         public void AddVoidMeter(float value)
         {
             SetVoidMeter(voidMeter + value);
-            if (voidMeter >= maxVoidMeter)
-            {
-                TransitionToVoidState();
-            }
         }
 
         public float GetFillPercent()
         {
             return voidMeter / maxVoidMeter;
+        }
+
+        public bool CanTransform()
+        {
+            return (!isCorruptModeActive) && 0.1f >= (maxVoidMeter - voidMeter);
         }
 
     }

@@ -11,6 +11,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public static BuffDef quickShot;
         public static BuffDef adsUptime;
 
+        public static int quickShotMaxStacksPerSecondaryCharge = 3;
+
         public static void Init()
         {
             voidSicknessBuff = Modules.Content.CreateAndAddBuff(

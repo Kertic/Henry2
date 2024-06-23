@@ -1,5 +1,6 @@
 using EntityStates;
 using RoR2;
+using RoR2.Skills;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -16,9 +17,11 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
         public static string cancelSoundString = "Play_huntress_shift_end";
 
+
         private Vector3 blinkDirection;
         private Vector3 blinkVector;
         private Transform modelTransform;
+        private CharacterModel characterModel;
         private float minCancelTime;
 
         public override void OnEnter()
@@ -29,12 +32,17 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
             if (isAuthority && inputBank && characterDirection)
             {
                 blinkVector = GetBlinkVector();
+                modelTransform = GetModelTransform();
+                if (modelTransform)
+                {
+                    characterModel = modelTransform.GetComponent<CharacterModel>();
+                    characterModel.invisibilityCount++;
+                }
             }
 
             if (NetworkServer.active)
             {
-                characterBody.AddBuff(VoidHuntressBuffs.quickShot);
-                characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.5f * duration);
+                characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, duration);
             }
 
             Util.PlaySound(dodgeSoundString, gameObject);
@@ -85,18 +93,21 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 
         public override void OnExit()
         {
+            base.OnExit();
+
             modelTransform = GetModelTransform();
-            if (this.modelTransform)
+            if (modelTransform)
             {
+                characterModel.invisibilityCount--;
+
                 TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
-                temporaryOverlay.duration = 1.6f;
+                temporaryOverlay.duration = 0.6f;
                 temporaryOverlay.animateShaderAlpha = true;
                 temporaryOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
                 temporaryOverlay.destroyComponentOnEnd = true;
                 temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlay.mat").WaitForCompletion();
                 temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
             }
-            base.OnExit();
 
             characterMotor.disableAirControlUntilCollision = false;
 
@@ -111,6 +122,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
                 Util.PlaySound(dodgeSoundString, gameObject);
             }
 
+            CreateBlinkEffect(Util.GetCorePosition(gameObject));
         }
 
         public override void OnSerialize(NetworkWriter writer)
