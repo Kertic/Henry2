@@ -4,12 +4,10 @@ using UnityEngine;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
-    public class VoidStormArrow : BaseSkillState
+    public class VoidArrowBarrage : BaseSkillState
     {
 
-        public static float damageCoefficient = VoidHuntressStaticValues.primaryBowDamageCoefficient;
-        public static float procCoefficient = 1f;
-        public static float baseDuration = 0.5f;
+        public static float baseDuration = 0.1f;
         public static string activateSound = "Play_voidman_m2_chargeUp";
         public static int stacksGainedOnUse = 1;
 

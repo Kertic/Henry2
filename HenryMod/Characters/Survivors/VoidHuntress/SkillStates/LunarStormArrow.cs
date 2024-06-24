@@ -1,16 +1,13 @@
 ﻿using EntityStates;
-using EntityStates.LunarWisp;
 using Henry2Mod.Survivors.VoidHuntress;
-using IL.RoR2;
-using RoR2.Skills;
 using UnityEngine;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
-    public class StormArrow : BaseSkillState
+    public class ArrowFlurry : BaseSkillState
     {
 
-        public static float damageCoefficient = VoidHuntressStaticValues.primaryBowDamageCoefficient;
+        public static float damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
         public static float procCoefficient = 1f;
         public static float baseDuration = 0.01f;
         public static string activateSound = "Play_railgunner_m2_scope_in";

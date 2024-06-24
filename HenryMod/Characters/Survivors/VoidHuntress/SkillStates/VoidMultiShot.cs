@@ -8,7 +8,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidMultiShot : BaseSkillState
     {
-        public static float damageCoefficient = VoidHuntressStaticValues.multiShotBowDamageCoefficient;
+        public static float damageCoefficient = VoidHuntressStatics.multiShotBowDamageCoefficient;
         public static float procCoefficient = 0.2f;
         public static float baseDuration = 0.6f;
         //delay on firing is usually ass-feeling. only set this if you know what you're doing

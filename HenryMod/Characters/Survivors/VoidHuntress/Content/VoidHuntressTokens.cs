@@ -58,10 +58,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             #region Primary
             Language.Add(prefix + "LUNAR_BOW_NAME", "Lunar bow");
-            Language.Add(prefix + "LUNAR_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowVoidMeterGain} Corruption</style>. If you have Quick Shot, you charge up instantly.");
+            Language.Add(prefix + "LUNAR_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStatics.lunarBowDmgCoeff}% damage and generating {VoidHuntressStatics.lunarBowVoidMeterGain} Corruption</style>. If you have Quick Shot, you charge up instantly.");
 
             Language.Add(prefix + "VOID_BOW_NAME", "Void Bow");
-            Language.Add(prefix + "VOID_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStaticValues.primaryBowDamageCoefficient}% damage and generating {VoidHuntressStaticValues.primaryBowVoidMeterGain} Corruption</style>. If you have Void Shot, you reduce your cooldowns.");
+            Language.Add(prefix + "VOID_BOW_DESCRIPTION", $"Fire your bow, dealing <style=cIsDamage>{100f * VoidHuntressStatics.lunarBowDmgCoeff}% damage and generating {VoidHuntressStatics.lunarBowVoidMeterGain} Corruption</style>. If you have Void Shot, you reduce your cooldowns.");
             #endregion
 
             #region Secondary
@@ -74,10 +74,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
             #region Utility
             Language.Add(prefix + "ARROW_FLURRY_NAME", "Barrage");
-            Language.Add(prefix + "ARROW_FLURRY_DESCRIPTION", $"Activate to allow yourself to rapidly fire <style=cIsUtility>{VoidHuntressStaticValues.barrageStacks} arrows.</style>. Hitting attacks reduces this cooldown by <style=cIsUtility>{VoidHuntressStaticValues.primaryAttackCDRInSeconds}</style>");
+            Language.Add(prefix + "ARROW_FLURRY_DESCRIPTION", $"Activate to allow yourself to rapidly fire <style=cIsUtility>{VoidHuntressStatics.arrowFlurryStacks} arrows.</style>. Hitting attacks reduces this cooldown by <style=cIsUtility>{VoidHuntressStatics.lunarBowAttackCDRInSeconds}</style>");
 
             Language.Add(prefix + "VOID_ARROW_FLURRY_NAME", "Void Barrage");
-            Language.Add(prefix + "VOID_ARROW_FLURRY_DESCRIPTION", $"Activate to rapidly fire all stacks for <style=cIsUtility>{VoidHuntressStaticValues.multiShotBowDamageCoefficient}% damage</style>. Activiating this skill only gives <style=cIsUtility>1 Void Shot</style> but it can be activated at less than max stacks.");
+            Language.Add(prefix + "VOID_ARROW_FLURRY_DESCRIPTION", $"Activate to rapidly fire all stacks for <style=cIsUtility>{VoidHuntressStatics.multiShotBowDamageCoefficient}% damage</style>. Activiating this skill only gives <style=cIsUtility>1 Void Shot</style> but it can be activated at less than max stacks.");
             #endregion
 
             #region Special

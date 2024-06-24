@@ -198,7 +198,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 VOIDHUNTRESS_PREFIX + "LUNAR_BOW_NAME",
                 VOIDHUNTRESS_PREFIX + "LUNAR_BOW_DESCRIPTION",
                 Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/AimArrowSnipe.asset").WaitForCompletion().icon,
-                new EntityStates.SerializableEntityStateType(typeof(LunarSnipe)))
+                new EntityStates.SerializableEntityStateType(typeof(LunarBow)))
             );
             m_primarySkill.canceledFromSprinting = true;
             m_primarySkill.cancelSprintingOnActivation = true;
@@ -209,7 +209,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 VOIDHUNTRESS_PREFIX + "VOID_BOW_NAME",
                 VOIDHUNTRESS_PREFIX + "VOID_BOW_DESCRIPTION",
                 Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/FireArrowSnipe.asset").WaitForCompletion().icon,
-                new EntityStates.SerializableEntityStateType(typeof(VoidSnipe)))
+                new EntityStates.SerializableEntityStateType(typeof(VoidBow)))
             );
             m_primarySkill.canceledFromSprinting = true;
             m_primarySkill.cancelSprintingOnActivation = true;
@@ -232,7 +232,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
                 skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Huntress/HuntressBodyBlink.asset").WaitForCompletion().icon,
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(Flit)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(LunarFlit)),
 
                 activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
@@ -305,7 +305,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 keywordTokens = new string[] { "KEYWORD_AGILE" },
                 skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Commando/CommandoBodyFireFMJ.asset").WaitForCompletion().icon,
 
-                activationState = new EntityStates.SerializableEntityStateType(typeof(StormArrow)),
+                activationState = new EntityStates.SerializableEntityStateType(typeof(ArrowFlurry)),
 
                 //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
                 activationStateMachineName = "Weapon2",

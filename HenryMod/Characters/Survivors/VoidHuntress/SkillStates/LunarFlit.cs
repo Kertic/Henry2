@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
-    public class Flit : BaseSkillState
+    public class LunarFlit : BaseSkillState
     {
         public static float totalDuration = 0.5f;
         public static float minJumpCancelRatio = 0.8f;

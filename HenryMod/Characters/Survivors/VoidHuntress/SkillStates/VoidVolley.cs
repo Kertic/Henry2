@@ -26,7 +26,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
     }
     public class VoidVolley : BaseSkillState
     {
-        public static float damageCoefficient = VoidHuntressStaticValues.primaryBowDamageCoefficient;
+        public static float damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
         public static float procCoefficient = 1f;
         public static float baseDuration = 0.5f;
         public static float firePercentTime = 0.0f;
@@ -130,7 +130,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
                 if (attackerBody != null)
                 {
-                    m_voidState?.AddVoidMeter(VoidHuntressStaticValues.primaryBowVoidMeterGain);
+                    m_voidState?.AddVoidMeter(VoidHuntressStatics.lunarBowVoidMeterGain);
                 }
 
             }
