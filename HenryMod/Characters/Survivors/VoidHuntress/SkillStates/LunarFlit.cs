@@ -1,6 +1,5 @@
 using EntityStates;
 using RoR2;
-using RoR2.Skills;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
@@ -9,12 +8,12 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
     public class LunarFlit : BaseSkillState
     {
-        public static float totalDuration = 2.5f;
+        public static float totalDuration = 1.5f;
         public static float minJumpCancelThresh = 0.6f;
         public static float minSprintCancelThresh = 0.1f;
         public static float abilityFalloffThresh = 0.1f;
-        public static float initialSpeedCoefficient = 4f;
-        public static float finalSpeedCoefficient = 4.8f;
+        public static float initialSpeedCoefficient = 6f;
+        public static float finalSpeedCoefficient = 6.8f;
 
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
         public static string dodgeStartSoundString = "Play_voidman_m2_chargeUp";
@@ -26,7 +25,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         private Transform modelTransform;
         private CharacterModel characterModel;
         private float minJumpCancelTime;
-        private float minSprintCancelTime;
+        private float minManualCancelTime;
         private bool hasFinishedBlinking;
 
         public override void OnEnter()
@@ -34,7 +33,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
             base.OnEnter();
             hasFinishedBlinking = false;
             minJumpCancelTime = totalDuration * minJumpCancelThresh;
-            minSprintCancelTime = totalDuration * minSprintCancelThresh;
+            minManualCancelTime = totalDuration * minSprintCancelThresh;
 
             if (isAuthority && inputBank && characterDirection)
             {
@@ -71,21 +70,20 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 
             if (isAuthority)
             {
-                if (fixedAge >= minSprintCancelTime && inputBank.sprint.down)
+                if (fixedAge >= minManualCancelTime && inputBank.skill2.justPressed)
                 {
-                    ExitBlink();// After we can crouch cancel, we don't display exit blink unless we're exiting early
-                    outer.SetNextStateToMain();
-                    return;
+                    ExitBlink();// After we can manually cancel, we can hover at any point
                 }
 
                 if (fixedAge >= minJumpCancelTime)
                 {
                     ExitBlink();// After we can jump cancel, we'll just briefly hover before falling down. So display the exit blink
-                    if (inputBank.jump.down)
-                    {
-                        outer.SetNextStateToMain();
-                        return;
-                    }
+                }
+
+                if (inputBank.jump.down && hasFinishedBlinking)
+                {
+                    outer.SetNextStateToMain();
+                    return;
                 }
 
                 if (fixedAge >= totalDuration)
@@ -95,7 +93,6 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
                     return;
                 }
 
-
             }
 
         }
@@ -103,6 +100,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             base.OnExit();
             characterBody.SetAimTimer(totalDuration - minJumpCancelTime);
+            ExitBlink();
 
             if (inputBank.jump.down)
             {

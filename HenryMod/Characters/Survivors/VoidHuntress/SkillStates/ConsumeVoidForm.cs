@@ -1,53 +1,23 @@
 ﻿using EntityStates;
 using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
-using JetBrains.Annotations;
 using RoR2;
-using RoR2.Skills;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
-
-    public class EnterVoidFormSkillDef : SkillDef
+    public class ConsumeVoidForm : BaseSkillState
     {
-        public class InstanceData : BaseSkillInstanceData
-        {
-            public VoidHuntressVoidState voidState;
-        }
-        public override BaseSkillInstanceData OnAssigned([NotNull] GenericSkill skillSlot)
-        {
-            return new InstanceData { voidState = skillSlot.characterBody.GetComponent<VoidHuntressVoidState>() };
-        }
 
-        public override bool CanExecute([NotNull] GenericSkill skillSlot)
-        {
-            VoidHuntressVoidState voidState = ((InstanceData)skillSlot.skillInstanceData).voidState;
-            return base.CanExecute(skillSlot) && ((InstanceData)skillSlot.skillInstanceData).voidState.CanTransform();
-        }
-
-        public override bool IsReady([NotNull] GenericSkill skillSlot)
-        {
-            return base.IsReady(skillSlot) && ((InstanceData)skillSlot.skillInstanceData).voidState.CanTransform();
-        }
-
-        public override void OnExecute([NotNull] GenericSkill skillSlot)
-        {
-            base.OnExecute(skillSlot);
-            ((InstanceData)skillSlot.skillInstanceData).voidState.TransitionToVoidState();
-        }
-    }
-    public class EnterVoidForm : BaseSkillState
-    {
         public static float baseDuration = VoidHuntressStatics.transitionDuration;
         public static float vanishPoint = 0.3f;
         public static float reappearPoint = 0.7f;
 
+        private VoidHuntressVoidState m_voidState;
         private Transform modelTransform;
         private CharacterModel characterModel;
-        private TemporaryOverlay continuallyOverlay;
         private float vanishTime;
         private float reappearTime;
 
@@ -57,6 +27,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public override void OnEnter()
         {
             base.OnEnter();
+
+
+            m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
             hasVanished = hasReappeared = false;
 
             vanishTime = baseDuration * vanishPoint;
@@ -68,16 +41,19 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             {
                 characterModel = modelTransform.GetComponent<CharacterModel>();
                 PhaseOut();
+
+                ProcChainMask procChainMask = default(ProcChainMask);
+                healthComponent.Heal(VoidHuntressStatics.healthPerVoidMeter * m_voidState.currentVoidMeter, procChainMask);
+                m_voidState.AddVoidMeter(-m_voidState.currentVoidMeter);
+
             }
 
             if (NetworkServer.active)
             {
                 characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, baseDuration);
-                characterBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, baseDuration);
             }
 
         }
-
 
         public override void FixedUpdate()
         {
@@ -105,8 +81,8 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public override void OnExit()
         {
             base.OnExit();
-
             characterMotor.disableAirControlUntilCollision = false;
+            m_voidState.TransitionToLunarState();
         }
 
         public override InterruptPriority GetMinimumInterruptPriority()
@@ -123,7 +99,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             effectData.origin = Util.GetCorePosition(gameObject);
             EffectManager.SpawnEffect(EntityStates.Huntress.BlinkState.blinkPrefab, effectData, false);
 
-            TemporaryOverlay temporaryOverlay = modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+            TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
             temporaryOverlay.duration = reversed ? (baseDuration - reappearTime) : vanishTime;
             temporaryOverlay.animateShaderAlpha = true;
             temporaryOverlay.alphaCurve =
@@ -134,5 +110,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             temporaryOverlay.originalMaterial = Addressables.LoadAssetAsync<Material>("RoR2/DLC1/VoidSurvivor/matVoidBlinkBodyOverlayCorrupted.mat").WaitForCompletion();
             temporaryOverlay.AddToCharacerModel(characterModel);
         }
+
     }
 }

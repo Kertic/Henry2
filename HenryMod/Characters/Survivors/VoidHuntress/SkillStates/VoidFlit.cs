@@ -9,29 +9,22 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
     public class VoidFlit : BaseSkillState
     {
         public static float totalDuration = 0.35f;
-        public static float minJumpCancelThresh = 0.7f;
-        public static float minSprintCancelThresh = 0.1f;
         public static float initialSpeedCoefficient = 5f;
         public static float finalSpeedCoefficient = 7.5f;
 
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
         public static string cancelSoundString = "Play_huntress_shift_end";
 
-
         private Vector3 blinkDirection;
         private Vector3 blinkVector;
         private Transform modelTransform;
         private CharacterModel characterModel;
-        private float minJumpCancelTime;
-        private float minSprintCancelTime;
         private bool hasFinishedBlinking;
 
         public override void OnEnter()
         {
             base.OnEnter();
             hasFinishedBlinking = false;
-            minJumpCancelTime = totalDuration * minJumpCancelThresh;
-            minSprintCancelTime = totalDuration * minSprintCancelThresh;
 
             if (isAuthority && inputBank && characterDirection)
             {
@@ -59,34 +52,18 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             base.FixedUpdate();
 
-            base.characterMotor.velocity = Vector3.zero;
+            characterMotor.velocity = Vector3.zero;
             if (!hasFinishedBlinking)
             {
-                base.characterMotor.rootMotion += this.blinkVector * (this.moveSpeedStat * initialSpeedCoefficient * Time.fixedDeltaTime);
+                characterMotor.rootMotion += this.blinkVector * (this.moveSpeedStat * initialSpeedCoefficient * Time.fixedDeltaTime);
             }
 
             if (isAuthority)
             {
-                if (fixedAge >= minSprintCancelTime && inputBank.sprint.down)
-                {
-                    ExitBlink();// After we can crouch cancel, we don't display exit blink unless we're exiting early
-                    outer.SetNextStateToMain();
-                    return;
-                }
-
-                if (fixedAge >= minJumpCancelTime)
-                {
-                    ExitBlink();// After we can jump cancel, we'll just briefly hover before falling down. So display the exit blink
-                    if (inputBank.jump.down)
-                    {
-                        outer.SetNextStateToMain();
-                        return;
-                    }
-                }
 
                 if (fixedAge >= totalDuration)
                 {
-                    ExitBlink();// Someday we just get yeeted back to the floor
+                    ExitBlink();
                     outer.SetNextStateToMain();
                     return;
                 }
@@ -98,16 +75,11 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public override void OnExit()
         {
             base.OnExit();
+            ExitBlink();
 
             characterMotor.disableAirControlUntilCollision = false;
-            characterBody.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, Mathf.Min(VoidHuntressBuffs.voidShotMaxStacks, characterBody.GetBuffCount(VoidHuntressBuffs.voidShot) + 1)); 
-
-            if (inputBank.jump.down)
-            {
-                blinkVector = GetBlinkVector();
-                characterMotor.velocity = blinkVector * moveSpeedStat * finalSpeedCoefficient;
-                Util.PlaySound(cancelSoundString, gameObject);
-            }
+            characterBody.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, Mathf.Min(VoidHuntressBuffs.voidShotMaxStacks, characterBody.GetBuffCount(VoidHuntressBuffs.voidShot) + 1));
+            Util.PlaySound(cancelSoundString, gameObject);
         }
 
         public override void OnSerialize(NetworkWriter writer)
@@ -152,7 +124,19 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         }
         protected virtual Vector3 GetBlinkVector()
         {
-            blinkDirection = (inputBank.moveVector == Vector3.zero ? characterDirection.forward : inputBank.moveVector).normalized;
+
+            if (inputBank.jump.down)
+            {
+                blinkDirection = Vector3.up;
+            }
+            else if (inputBank.moveVector != Vector3.zero)
+            {
+                blinkDirection = (inputBank.moveVector).normalized;
+            }
+            else
+            {
+                blinkDirection = (characterDirection.forward).normalized;
+            }
 
             return blinkDirection;
         }

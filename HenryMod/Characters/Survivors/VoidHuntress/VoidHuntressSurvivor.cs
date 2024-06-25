@@ -70,6 +70,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public override GameObject displayPrefab { get; protected set; }
         public VoidMeter voidHudMeterRef { get; protected set; }
         public VoidHuntressVoidState voidHuntressVoidStateRef { get; protected set; }
+        public VoidHuntressTracker trackerRef { get; protected set; }
         public float voidAmount { get; protected set; }
         public float maxVoidAmount { get; protected set; }
 
@@ -156,8 +157,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
         {
             // This would be where we add things like the void bow
             voidHuntressVoidStateRef = bodyPrefab.GetComponent<VoidHuntressVoidState>();
-
-            voidHuntressVoidStateRef.Init(prefabCharacterBody, skillDefOverrides);
+            trackerRef = bodyPrefab.AddComponent<VoidHuntressTracker>();
+            voidHuntressVoidStateRef.Init(prefabCharacterBody, skillDefOverrides, trackerRef);
         }
 
         public override void InitializeSkills()
@@ -168,7 +169,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             AddPassiveSkill();
             AddPrimarySkills();
             AddSecondarySkills();
-            AddUtiitySkills();
+            AddUtilitySkills();
             AddSpecialSkills();
         }
 
@@ -234,11 +235,11 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(LunarFlit)),
 
-                activationStateMachineName = "Weapon3",
+                activationStateMachineName = "Weapon2",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 4f,
-                baseMaxStock = 2,
+                baseRechargeInterval = 5f,
+                baseMaxStock = 1,
 
                 rechargeStock = 1,
                 requiredStock = 1,
@@ -252,8 +253,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 isCombatSkill = false,
                 canceledFromSprinting = false,
-                cancelSprintingOnActivation = true,
-                forceSprintDuringState = false,
+                cancelSprintingOnActivation = false,
+                forceSprintDuringState = true,
             });
 
             var voidFlitSkillDef = skillDefOverrides[(int)SkillOverrideTypes.Secondary] = Skills.CreateSkillDef(new SkillDefInfo
@@ -266,7 +267,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(VoidFlit)),
 
-                activationStateMachineName = "Weapon3",
+                activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 6f,
@@ -293,7 +294,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
         }
 
-        private void AddUtiitySkills()
+        private void AddUtilitySkills()
         {
             Skills.CreateGenericSkillWithSkillFamily(bodyPrefab, SkillSlot.Utility);
 
@@ -330,7 +331,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 forceSprintDuringState = false,
             });
 
-            var voidStormArrow = skillDefOverrides[(int)SkillOverrideTypes.Utility] = Skills.CreateSkillDef(new SkillDefInfo
+            skillDefOverrides[(int)SkillOverrideTypes.Utility] = Skills.CreateSkillDef(new SkillDefInfo
             {
                 skillName = "VoidArrowFlurry",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "VOID_ARROW_FLURRY_NAME",
@@ -340,18 +341,51 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(VoidMultiShot)),
 
-                //setting this to the "Weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon2",
+                activationStateMachineName = "Weapon",
                 interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
-                baseRechargeInterval = 1f,
-                baseMaxStock = 8,
+                baseRechargeInterval = 2f,
+                baseMaxStock = 3,
 
                 rechargeStock = 1,
                 requiredStock = 1,
-                stockToConsume = 1,
+                stockToConsume = 0,
 
-                resetCooldownTimerOnUse = false,
+                resetCooldownTimerOnUse = true,
+                fullRestockOnAssign = false,
+                dontAllowPastMaxStocks = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+
+                isCombatSkill = true,
+                canceledFromSprinting = false,
+                cancelSprintingOnActivation = false,
+                forceSprintDuringState = false,
+            });
+
+//            skillDefOverrides[(int)SkillOverrideTypes.Utility] = 
+                
+                Skills.CreateSkillDef(new SkillDefInfo
+            {
+                skillName = "VoidArrowFlurry",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "VOID_ARROW_FLURRY_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "VOID_ARROW_FLURRY_DESCRIPTION",
+                keywordTokens = new string[] { "KEYWORD_AGILE" },
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Merc/MercBodyFocusedAssault.asset").WaitForCompletion().icon,
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(VoidGlaive)),
+
+                activationStateMachineName = "Weapon",
+                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+
+                baseRechargeInterval = 2f,
+                baseMaxStock = 3,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 0,
+
+                resetCooldownTimerOnUse = true,
                 fullRestockOnAssign = false,
                 dontAllowPastMaxStocks = true,
                 mustKeyPress = false,
@@ -398,7 +432,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 beginSkillCooldownOnSkillEnd = true,
             });
 
-            EnterVoidFormSkillDef specialSkillDef2 = Skills.CreateSkillDef<EnterVoidFormSkillDef>(new SkillDefInfo
+            EnterVoidFormSkillDef enterVoidFormSkill = Skills.CreateSkillDef<EnterVoidFormSkillDef>(new SkillDefInfo
             {
                 skillName = "Invert",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "INVERT_NAME",
@@ -421,7 +455,31 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 beginSkillCooldownOnSkillEnd = true,
             });
 
-            Skills.AddSpecialSkills(bodyPrefab, specialSkillDef2);
+            SkillDef exitVoidForm = skillDefOverrides[(int)SkillOverrideTypes.Special] = Skills.CreateSkillDef<EnterVoidFormSkillDef>(new SkillDefInfo
+            {
+                skillName = "Reform",
+                skillNameToken = VOIDHUNTRESS_PREFIX + "REFORM_NAME",
+                skillDescriptionToken = VOIDHUNTRESS_PREFIX + "REFORM_DESCRIPTION",
+                skillIcon = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Toolbot/ToolbotCancelDualWield.asset").WaitForCompletion().icon,
+
+                activationState = new EntityStates.SerializableEntityStateType(typeof(ConsumeVoidForm)),
+                activationStateMachineName = "Body",
+                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+
+                baseRechargeInterval = 1f,
+                baseMaxStock = 1,
+
+                rechargeStock = 1,
+                requiredStock = 1,
+                stockToConsume = 1,
+
+                isCombatSkill = true,
+                mustKeyPress = false,
+                beginSkillCooldownOnSkillEnd = true,
+            });
+
+
+            Skills.AddSpecialSkills(bodyPrefab, enterVoidFormSkill);
         }
 
         public override void InitializeSkins()
@@ -538,7 +596,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
             if (obj && obj.targetBodyObject && voidHudMeterRef)
             {
                 VoidHuntressVoidState voidState = obj.targetBodyObject.GetComponent<VoidHuntressVoidState>();
-                voidState.Init(obj.targetBodyObject.GetComponent<CharacterBody>(), skillDefOverrides);
+                voidState.Init(obj.targetBodyObject.GetComponent<CharacterBody>(), skillDefOverrides, trackerRef);
                 if (voidState)
                 {
                     voidHudMeterRef.Init(voidState);

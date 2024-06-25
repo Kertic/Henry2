@@ -66,7 +66,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
             base.FireProjectile();
 
-            m_voidState?.AddVoidMeter(VoidHuntressStatics.specialBowVoidMeterGain);
+            m_voidState?.AddVoidMeter(VoidHuntressStatics.bombVoidMeterGain);
         }
 
     }

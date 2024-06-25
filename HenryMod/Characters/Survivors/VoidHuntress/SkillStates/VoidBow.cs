@@ -4,52 +4,83 @@ using EntityStates.LunarWisp;
 using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
+using RoR2.Orbs;
 using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Networking;
 using static RoR2.BulletAttack;
 
 namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidBow : BaseSkillState
     {
-        public static float damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
+        public static float damageCoefficient = VoidHuntressStatics.voidBowDmgCoeff;
         public static float procCoefficient = 1f;
-        public static float baseDuration = 0.72f;
+        public static float baseDuration = 0.5f;
         public static float firePercentTime = 0f;
-        public static float force = 800f;
-        public static float recoil = 3f;
-        public static float range = 256f;
-        public static float maxChargeFOV = 120f;
+        public static float baseArrowReloadTimer = 0.1f;
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
+
+        private static string muzzlePrefabString = "RoR2/Base/Huntress/MuzzleflashHuntress.prefab";
+        private static GameObject muzzlePrefabOject = Addressables.LoadAssetAsync<GameObject>(muzzlePrefabString).WaitForCompletion();
 
         private float totalDuration;
         private float beginFireTime;
-        private bool hasFired;
+        private float arrowReloadTimer;
+        private float lastArrowReloadTimer;
         private string muzzleString;
         private VoidHuntressVoidState m_voidState;
-        private CameraTargetParams.CameraParamsOverrideHandle handle;
+        private HuntressTracker m_tracker;
+        private HurtBox initialOrbTarget;
+        private int firedArrowCount;
+        private int maxArrowCount;
 
         public override void OnEnter()
         {
             base.OnEnter();
-            totalDuration = baseDuration / attackSpeedStat;
-            m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
-            beginFireTime = firePercentTime * totalDuration;
+            muzzleString = "Muzzle";
 
-            hasFired = false;
+            arrowReloadTimer = baseArrowReloadTimer / attackSpeedStat;
+            lastArrowReloadTimer = 0;
+
+            maxArrowCount = characterBody.HasBuff(VoidHuntressBuffs.voidShot) ? 3 : 1;
+            firedArrowCount = 0;
+
+            totalDuration = baseDuration / attackSpeedStat;
+            beginFireTime = firePercentTime * totalDuration;
+            m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
             characterBody.SetAimTimer(2f);
+            m_tracker = GetComponent<VoidHuntressTracker>();
+
+            if (m_tracker && isAuthority)
+            {
+                initialOrbTarget = m_tracker.GetTrackingTarget();
+            }
+
+            if (initialOrbTarget == null)
+            {
+                outer.SetNextStateToMain();
+                return;
+            }
+
+            if (arrowReloadTimer * 3.0f >= totalDuration)
+            {
+                Log.Error($"[VoidBow Misconfiguration] Your reload time ({arrowReloadTimer}) is too long and can't be completed in the duration ({totalDuration}).");
+            }
+
+            PlayCrossfade("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", totalDuration, totalDuration * 0.2f / attackSpeedStat);
+            PlayCrossfade("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", totalDuration, totalDuration * 0.2f / attackSpeedStat);
         }
 
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-
-            PlayAnimation("Gesture, Override", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
-            PlayAnimation("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
+            lastArrowReloadTimer -= Time.fixedDeltaTime;
 
             if ((fixedAge >= beginFireTime))
             {
-                Fire();
+                FireOrbArrow();
             }
 
             if (isAuthority && inputBank && fixedAge >= totalDuration)
@@ -59,82 +90,57 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             }
 
         }
-        public override void OnExit()
+
+        private void ConsumeBuff()
         {
-
-
-            base.OnExit();
-        }
-
-        private void Fire()
-        {
-            if (hasFired) return;
-
-            hasFired = true;
-            Ray aimRay = GetAimRay();
-            Util.PlaySound("Play_huntress_m2_impact", gameObject);
-            PlayAnimation("Gesture, Override", "FireSeekingArrow");
-            PlayAnimation("Gesture, Additive", "FireSeekingArrow");
-            var bulletAtk = new BulletAttack
-            {
-                bulletCount = (uint)(characterBody.HasBuff(VoidHuntressBuffs.voidShot) ? 2 : 1),
-                aimVector = aimRay.direction,
-                origin = aimRay.origin,
-                damage = damageCoefficient * damageStat,
-                damageColorIndex = DamageColorIndex.Default,
-                damageType = DamageType.Generic,
-                falloffModel = BulletAttack.FalloffModel.None,
-                maxDistance = range,
-                force = force,
-                hitMask = LayerIndex.CommonMasks.bullet,
-                minSpread = 0f,
-                maxSpread = 0f,
-                isCrit = RollCrit(),
-                owner = gameObject,
-                muzzleName = muzzleString,
-                smartCollision = true,
-                procChainMask = default,
-                procCoefficient = procCoefficient,
-                radius = 0.75f,
-                sniper = false,
-                stopperMask = LayerIndex.CommonMasks.bullet,
-                weapon = null,
-                tracerEffectPrefab = tracerEffectPrefab,
-                spreadPitchScale = 0f,
-                spreadYawScale = 0f,
-                queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
-                hitEffectPrefab = FirePistol2.hitEffectPrefab,
-                hitCallback = VoidSnipeHitCallback,
-            };
-
-            bulletAtk.Fire();
-
             if (characterBody.HasBuff(VoidHuntressBuffs.voidShot))
             {
                 characterBody.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, characterBody.GetBuffCount(VoidHuntressBuffs.voidShot) - 1);
                 foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
                 {
-                    characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStatics.voidPrimaryAttackCDRInSeconds);
+                    characterBody.skillLocator.GetSkill(item)?.RunRecharge(VoidHuntressStatics.voidBowAttackCDRInSeconds);
                 }
 
             }
         }
 
-        private bool VoidSnipeHitCallback(BulletAttack bulletAttackRef, ref BulletHit hitInfo)
+        public override void OnExit()
         {
-            if (hitInfo.point != null && hitInfo.hitHurtBox != null && bulletAttackRef.owner != null)
+            base.OnExit();
+        }
+        private void FireOrbArrow()
+        {
+            if (firedArrowCount >= maxArrowCount || lastArrowReloadTimer > 0f || !NetworkServer.active)
             {
-                CharacterBody attackerBody = bulletAttackRef.owner.GetComponent<CharacterBody>();
-
-                if (attackerBody != null)
-                {
-                    m_voidState?.AddVoidMeter(VoidHuntressStatics.lunarBowVoidMeterGain);
-                }
+                return;
             }
 
-            return defaultHitCallback.Invoke(bulletAttackRef, ref hitInfo);
+            firedArrowCount++;
+            lastArrowReloadTimer = arrowReloadTimer;
+            GenericDamageOrb genericDamageOrb = CreateArrowOrb();
+            genericDamageOrb.damageValue = characterBody.damage * damageCoefficient;
+            genericDamageOrb.isCrit = Util.CheckRoll(characterBody.crit, characterBody.master);
+            genericDamageOrb.teamIndex = TeamComponent.GetObjectTeam(gameObject);
+            genericDamageOrb.attacker = gameObject;
+            genericDamageOrb.procCoefficient = procCoefficient;
+            HurtBox hurtBox = initialOrbTarget;
+
+            if (hurtBox)
+            {
+                m_voidState?.AddVoidMeter(VoidHuntressStatics.voidBowVoidMeterGain);
+                ConsumeBuff();
+                EffectManager.SimpleMuzzleFlash(muzzlePrefabOject, gameObject, muzzleString, true);
+                genericDamageOrb.origin = transform.position;
+                genericDamageOrb.target = hurtBox;
+                OrbManager.instance.AddOrb(genericDamageOrb);
+            }
+
         }
 
+        protected virtual GenericDamageOrb CreateArrowOrb()
+        {
+            return new HuntressArrowOrb();
+        }
 
         public override InterruptPriority GetMinimumInterruptPriority()
         {

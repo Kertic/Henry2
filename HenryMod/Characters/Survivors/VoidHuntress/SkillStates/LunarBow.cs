@@ -5,8 +5,6 @@ using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
 using System;
-using System.Collections.Generic;
-using Unity.Audio;
 using UnityEngine;
 using static RoR2.BulletAttack;
 using static RoR2.CameraTargetParams;
@@ -15,10 +13,8 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class LunarBow : BaseSkillState
     {
-        private const float maxZoomFOV = 50f;
-        public static float damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
+        public static float baseDuration = 0.42f;
         public static float procCoefficient = 1f;
-        public static float baseDuration = 0.72f;
         public static float firePercentTime = 1.0f;
         public static float quickShotFirePercentTime = 0.25f;
         public static float force = 800f;
@@ -26,13 +22,19 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public static float range = 256f;
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
 
+        public float damageCoefficient; 
+        private const float maxZoomFOV = 60f;
+
         private float totalDuration;
-        private float finalFOV;
         private float beginFireTime;
         private bool hasRang;
         private string muzzleString;
         private VoidHuntressVoidState m_voidState;
         CameraParamsOverrideHandle handle;
+        private HuntressTracker m_tracker;
+        private HurtBox initialTarget;
+
+
 
 
         public override void OnEnter()
@@ -40,16 +42,22 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             base.OnEnter();
             totalDuration = baseDuration / attackSpeedStat;
             m_voidState = characterBody.GetComponent<VoidHuntressVoidState>();
+            hasRang = false;
 
+            m_tracker = GetComponent<VoidHuntressTracker>();
+            initialTarget = m_tracker.GetTrackingTarget();
 
             if (characterBody.HasBuff(VoidHuntressBuffs.quickShot))
             {
                 beginFireTime = quickShotFirePercentTime * totalDuration;
+                hasRang = true;
+                damageCoefficient = VoidHuntressStatics.lunarBowFlurryDmgCoeff;
             }
             else
             {
                 beginFireTime = firePercentTime * totalDuration;
                 characterMotor.walkSpeedPenaltyCoefficient = VoidHuntressStatics.lunarBowMovementSlowPenalty;
+                damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
 
                 CameraTargetParams ctp = base.cameraTargetParams;
                 CharacterCameraParamsData characterCameraParamsData = ctp.currentCameraParamsData;
@@ -59,7 +67,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                 UpdateCameraRequest(characterCameraParamsData, 0.0f, beginFireTime);
             }
 
-            hasRang = false;
             characterBody.SetAimTimer(2f);
         }
 
@@ -71,27 +78,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             PlayAnimation("Gesture, Additive", "FireSeekingShot", "FireSeekingShot.playbackRate", 0.1f);
 
             float currentChargeRatio = Math.Min(fixedAge / beginFireTime, 1.0f);
-
-            /*
-
-            CameraTargetParams ctp = base.cameraTargetParams;
-            CharacterCameraParamsData characterCameraParamsData = ctp.currentCameraParamsData;
-            float denom = (1 + fixedAge);
-            float smoothFactor = 8 / Mathf.Pow(denom, 2);
-            Vector3 smoothVector = new Vector3(-3 / 20, 1 / 16, -1);
-            var CameraPosition = ctp.cameraParams.standardLocalCameraPos;
-            characterCameraParamsData.idealLocalCameraPos = CameraPosition + smoothFactor * smoothVector;
-
-            CameraTargetParams.CameraParamsOverrideRequest request = new CameraTargetParams.CameraParamsOverrideRequest
-            {
-                cameraParamsData = characterCameraParamsData,
-                priority = 0,
-            };
-
-            handle = ctp.AddParamsOverride(request);
-            base.cameraTargetParams.RemoveParamsOverride(handle);
-            */
-
 
             if (fixedAge >= beginFireTime)
             {
@@ -125,13 +111,12 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                     }
                 }
             }
-
         }
+
         public override void OnExit()
         {
             characterMotor.walkSpeedPenaltyCoefficient = 1f;
-
-            base.cameraTargetParams.RemoveParamsOverride(handle, 1.12f);
+            cameraTargetParams.RemoveParamsOverride(handle, 0.4f);
 
             if ((fixedAge >= beginFireTime))
             {
@@ -158,22 +143,27 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             if (!hasRang)
             {
                 hasRang = true;
-                Util.PlaySound("Play_UI_cooldownRefresh", base.gameObject);
+                Util.PlayAttackSpeedSound("Play_railgunner_m2_reload_pass", gameObject, attackSpeedStat);
             }
         }
 
         private void Fire()
         {
             Ray aimRay = GetAimRay();
+
+            if (initialTarget != null)
+            {
+                aimRay = new Ray(gameObject.transform.position, initialTarget.transform.position - gameObject.transform.position);
+            }
+
+
             Util.PlaySound("Play_huntress_m1_shoot", gameObject);
-            PlayAnimation("Gesture, Override", "FireSeekingArrow");
-            PlayAnimation("Gesture, Additive", "FireSeekingArrow");
             var bulletAtk = new BulletAttack
             {
                 bulletCount = 1,
                 aimVector = aimRay.direction,
                 origin = aimRay.origin,
-                damage = damageCoefficient * damageStat,
+                damage =  (characterBody.HasBuff(VoidHuntressBuffs.quickShot) ? VoidHuntressStatics.lunarBowFlurryDmgCoeff :  damageCoefficient) * damageStat,
                 damageColorIndex = DamageColorIndex.Default,
                 damageType = DamageType.Generic,
                 falloffModel = BulletAttack.FalloffModel.None,
@@ -212,8 +202,6 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         {
             if (hitInfo.point != null && hitInfo.hitHurtBox != null && bulletAttackRef.owner != null)
             {
-                MonoBehaviour.print("[VoidSnipe HitCallback]");
-                MonoBehaviour.print(hitInfo.hitHurtBox);
                 CharacterBody attackerBody = bulletAttackRef.owner.GetComponent<CharacterBody>();
 
                 if (attackerBody != null)
