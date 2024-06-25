@@ -235,7 +235,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(LunarFlit)),
 
-                activationStateMachineName = "Weapon2",
+                activationStateMachineName = "Body",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 5f,
@@ -363,9 +363,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 forceSprintDuringState = false,
             });
 
-//            skillDefOverrides[(int)SkillOverrideTypes.Utility] = 
-                
-                Skills.CreateSkillDef(new SkillDefInfo
+            var voidGlaive = skillDefOverrides[(int)SkillOverrideTypes.Utility] = Skills.CreateSkillDef<HuntressTrackingSkillDef>(new SkillDefInfo
             {
                 skillName = "VoidArrowFlurry",
                 skillNameToken = VOIDHUNTRESS_PREFIX + "VOID_ARROW_FLURRY_NAME",
@@ -376,14 +374,14 @@ namespace Henry2Mod.Survivors.VoidHuntress
                 activationState = new EntityStates.SerializableEntityStateType(typeof(VoidGlaive)),
 
                 activationStateMachineName = "Weapon",
-                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
+                interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseRechargeInterval = 2f,
-                baseMaxStock = 3,
+                baseRechargeInterval = 4f,
+                baseMaxStock = 1,
 
                 rechargeStock = 1,
                 requiredStock = 1,
-                stockToConsume = 0,
+                stockToConsume = 1,
 
                 resetCooldownTimerOnUse = true,
                 fullRestockOnAssign = false,

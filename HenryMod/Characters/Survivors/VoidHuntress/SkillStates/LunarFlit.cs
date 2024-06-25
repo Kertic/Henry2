@@ -12,8 +12,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public static float minJumpCancelThresh = 0.6f;
         public static float minSprintCancelThresh = 0.1f;
         public static float abilityFalloffThresh = 0.1f;
-        public static float initialSpeedCoefficient = 6f;
-        public static float finalSpeedCoefficient = 6.8f;
+        public static float initialSpeedCoefficient = 4f;
+        public static float finalSpeedCoefficient = 5f;
 
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
         public static string dodgeStartSoundString = "Play_voidman_m2_chargeUp";
