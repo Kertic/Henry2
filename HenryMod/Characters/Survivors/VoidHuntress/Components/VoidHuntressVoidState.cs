@@ -65,19 +65,20 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
             voidMeter = maxVoidMeter;
             voidStateStartTime = Time.time;
 
-            Log.Warning("[Void Transition]");
-            Log.Warning(m_body.skillLocator.utility);
 
             m_body.SetBuffCount(VoidHuntressBuffs.quickShot.buffIndex, 1);
             m_body.RemoveBuff(VoidHuntressBuffs.quickShot);
 
 
             m_body.skillLocator.primary.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Primary], GenericSkill.SkillOverridePriority.Upgrade);
-            m_body.skillLocator.utility.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
             m_body.skillLocator.secondary.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Secondary], GenericSkill.SkillOverridePriority.Upgrade);
+            m_body.skillLocator.utility.SetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
+
 
             foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
             {
+                if (item == SkillSlot.None) continue;
+
                 m_body.skillLocator.GetSkill(item).stock = m_body.skillLocator.GetSkill(item).maxStock;
             }
 
@@ -97,13 +98,15 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.Components
             m_body.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, 1);
             m_body.RemoveBuff(VoidHuntressBuffs.voidShot);
 
-
             m_body.skillLocator.primary.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Primary], GenericSkill.SkillOverridePriority.Upgrade);
-            m_body.skillLocator.utility.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
             m_body.skillLocator.secondary.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Secondary], GenericSkill.SkillOverridePriority.Upgrade);
+            m_body.skillLocator.utility.UnsetSkillOverride(m_body, m_overrides[(int)VoidHuntressSurvivor.SkillOverrideTypes.Utility], GenericSkill.SkillOverridePriority.Upgrade);
+
 
             foreach (SkillSlot item in Enum.GetValues(typeof(SkillSlot)))
             {
+                if (item == SkillSlot.None) continue;
+
                 m_body.skillLocator.GetSkill(item).stock = m_body.skillLocator.GetSkill(item).maxStock;
             }
 

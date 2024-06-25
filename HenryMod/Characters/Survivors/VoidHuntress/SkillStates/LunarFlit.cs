@@ -9,13 +9,15 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
     public class LunarFlit : BaseSkillState
     {
-        public static float totalDuration = 0.5f;
-        public static float minJumpCancelRatio = 0.8f;
-        public static float minSprintCancelRatio = 0.1f;
-        public static float initialSpeedCoefficient = 3.5f;
+        public static float totalDuration = 2.5f;
+        public static float minJumpCancelThresh = 0.6f;
+        public static float minSprintCancelThresh = 0.1f;
+        public static float abilityFalloffThresh = 0.1f;
+        public static float initialSpeedCoefficient = 4f;
         public static float finalSpeedCoefficient = 4.8f;
 
         public static string dodgeSoundString = "Play_huntress_shift_mini_blink";
+        public static string dodgeStartSoundString = "Play_voidman_m2_chargeUp";
         public static string cancelSoundString = "Play_huntress_shift_end";
 
 
@@ -31,8 +33,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             base.OnEnter();
             hasFinishedBlinking = false;
-            minJumpCancelTime = totalDuration * minJumpCancelRatio;
-            minSprintCancelTime = totalDuration * minSprintCancelRatio;
+            minJumpCancelTime = totalDuration * minJumpCancelThresh;
+            minSprintCancelTime = totalDuration * minSprintCancelThresh;
 
             if (isAuthority && inputBank && characterDirection)
             {
@@ -50,7 +52,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
                 characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, totalDuration);
             }
 
-            Util.PlaySound(dodgeSoundString, gameObject);
+            Util.PlaySound(dodgeStartSoundString, gameObject);
 
             CreateBlinkEffect(Util.GetCorePosition(gameObject));
         }
@@ -59,6 +61,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public override void FixedUpdate()
         {
             base.FixedUpdate();
+
 
             base.characterMotor.velocity = Vector3.zero;
             if (!hasFinishedBlinking)
@@ -99,8 +102,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         public override void OnExit()
         {
             base.OnExit();
-
-            characterMotor.disableAirControlUntilCollision = false;
+            characterBody.SetAimTimer(totalDuration - minJumpCancelTime);
 
             if (inputBank.jump.down)
             {
@@ -146,6 +148,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
                 temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
             }
 
+            characterMotor.disableAirControlUntilCollision = false;
             Util.PlaySound(dodgeSoundString, gameObject);
             CreateBlinkEffect(Util.GetCorePosition(gameObject));
             hasFinishedBlinking = true;

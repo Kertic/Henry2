@@ -99,7 +99,7 @@ namespace Henry2Mod.Survivors.Henry
 
             //if (!characterEnabled.Value)
             //    return;
-            return; // fuck u henry
+            //return; // fuck u henry
 
             base.Initialize();
         }

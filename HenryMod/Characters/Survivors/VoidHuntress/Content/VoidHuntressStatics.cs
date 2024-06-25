@@ -6,7 +6,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
     {
         public const float swordDamageCoefficient = 2.8f;
 
-        public const float lunarBowDmgCoeff = 4.2f;
+        public const float lunarBowDmgCoeff = 8f;
         public const float lunarBowAttackCDRInSeconds = 1.0f;
         public const float lunarBowMovementSlowPenalty = 0.7f;
         public const float lunarBowVoidMeterGain = 12.0f;

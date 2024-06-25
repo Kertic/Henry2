@@ -234,7 +234,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(LunarFlit)),
 
-                activationStateMachineName = "Body",
+                activationStateMachineName = "Weapon3",
                 interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseRechargeInterval = 4f,

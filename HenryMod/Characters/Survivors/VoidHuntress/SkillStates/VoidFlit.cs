@@ -9,8 +9,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
     public class VoidFlit : BaseSkillState
     {
         public static float totalDuration = 0.35f;
-        public static float minJumpCancelRatio = 0.7f;
-        public static float minSprintCancelRatio = 0.1f;
+        public static float minJumpCancelThresh = 0.7f;
+        public static float minSprintCancelThresh = 0.1f;
         public static float initialSpeedCoefficient = 5f;
         public static float finalSpeedCoefficient = 7.5f;
 
@@ -30,8 +30,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
         {
             base.OnEnter();
             hasFinishedBlinking = false;
-            minJumpCancelTime = totalDuration * minJumpCancelRatio;
-            minSprintCancelTime = totalDuration * minSprintCancelRatio;
+            minJumpCancelTime = totalDuration * minJumpCancelThresh;
+            minSprintCancelTime = totalDuration * minSprintCancelThresh;
 
             if (isAuthority && inputBank && characterDirection)
             {
