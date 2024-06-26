@@ -6,6 +6,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidArrowBarrage : BaseSkillState
     {
+        public const string skillName = "VoidArrowBarrage";
 
         public static float baseDuration = 0.1f;
         public static string activateSound = "Play_voidman_m2_chargeUp";

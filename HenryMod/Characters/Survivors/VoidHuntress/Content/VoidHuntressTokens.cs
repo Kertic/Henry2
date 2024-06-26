@@ -41,7 +41,8 @@ namespace Henry2Mod.Survivors.VoidHuntress
              + $"{VOID_TEXT}< ! > Void Form" + Environment.NewLine + Environment.NewLine
              + "< ! > Your Bow tracks targets and fires rapidly, and using an ability will enhance your bow to reduce your cooldowns" + Environment.NewLine + Environment.NewLine
              + "< ! > Your Secondary is much quicker and allows you to dodge enemies while staying in the fray." + Environment.NewLine + Environment.NewLine
-             + "< ! > Your Utility will fire arrows rapidly, increasing it's potency over time." + Environment.NewLine + Environment.NewLine
+             //+ "< ! > Your Utility will fire arrows rapidly, increasing it's potency over time." + Environment.NewLine + Environment.NewLine // Void Barrage
+             + "< ! > Your Utility will throw multiple bouncing glaives" + Environment.NewLine + Environment.NewLine
              + $"< ! > Your Special will succumb to {VOID_SICKNESS} and convert remaining Corruption into some health. </color>" + Environment.NewLine + Environment.NewLine;
 
             string outro = "..and so it left, searching for a new identity.";
@@ -84,7 +85,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
             Language.Add(prefix + "ARROW_FLURRY_DESCRIPTION", $"Activate to allow yourself to rapidly fire <style=cIsUtility>{VoidHuntressStatics.arrowFlurryStacks} arrows, each dealing</style> <style=cIsDamage>{100f * VoidHuntressStatics.lunarBowFlurryDmgCoeff}% damage</style>.");
 
             Language.Add(prefix + "VOID_ARROW_FLURRY_NAME", "Void Barrage");
-            Language.Add(prefix + "VOID_ARROW_FLURRY_DESCRIPTION", $"Activate to rapidly fire all stacks for <style=cIsUtility>{100f * VoidHuntressStatics.voidMultishotDmgCoeff}% damage</style>. Activiating this skill only gives <style=cIsUtility>1 Void Shot</style>");
+            Language.Add(prefix + "VOID_ARROW_FLURRY_DESCRIPTION", $"Activate to rapidly fire all stacks for <style=cIsDamage>{100f * VoidHuntressStatics.voidMultishotDmgCoeff}% damage</style>. Activiating this skill only gives <style=cIsUtility>1 Void Shot</style>");
+
+            Language.Add(prefix + "VOID_GLAIVE_NAME", "Void Glaive");
+            Language.Add(prefix + "VOID_GLAIVE_DESCRIPTION", $"Activate to throw {VoidHuntressStatics.voidGlaiveThrownCount} void glaives, dealing <style=cIsDamage>{100f * VoidHuntressStatics.voidGlaiveDmgCoeff}% damage</style>.");
             #endregion
 
             #region Special

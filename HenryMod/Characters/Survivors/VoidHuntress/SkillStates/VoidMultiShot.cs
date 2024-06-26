@@ -10,6 +10,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidMultiShot : BaseSkillState
     {
+        public const string skillName = "VoidMultiShot";
         public static float damageCoefficient = VoidHuntressStatics.voidMultishotDmgCoeff;
         public static float procCoefficient = 0.3f;
         public static float baseDuration = 0.6f;
@@ -88,7 +89,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                 {
                     Ray aimRay = GetAimRay();
 
-                    if(initialTarget != null)
+                    if (initialTarget != null)
                     {
                         aimRay = new Ray(gameObject.transform.position, initialTarget.transform.position - gameObject.transform.position);
                     }

@@ -41,6 +41,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
     }
     public class EnterVoidForm : BaseSkillState
     {
+public const string skillName = "EnterVoidForm";
+
+
         public static float baseDuration = VoidHuntressStatics.transitionDuration;
         public static float vanishPoint = 0.3f;
         public static float reappearPoint = 0.7f;

@@ -10,6 +10,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class ConsumeVoidForm : BaseSkillState
     {
+public const string skillName = "ConsumeVoidForm";
+
+
 
         public static float baseDuration = VoidHuntressStatics.transitionDuration;
         public static float vanishPoint = 0.3f;

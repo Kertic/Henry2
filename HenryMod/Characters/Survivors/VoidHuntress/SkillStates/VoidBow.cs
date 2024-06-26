@@ -15,6 +15,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidBow : BaseSkillState
     {
+public const string skillName = "VoidBow";
+
+
         public static float damageCoefficient = VoidHuntressStatics.voidBowDmgCoeff;
         public static float procCoefficient = 1f;
         public static float baseDuration = 0.5f;

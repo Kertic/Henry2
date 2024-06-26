@@ -3,6 +3,7 @@ using EntityStates.Commando.CommandoWeapon;
 using EntityStates.LunarWisp;
 using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
+using Henry2Mod.Survivors.VoidHuntress.SkillStates;
 using RoR2;
 using System;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class LunarBow : BaseSkillState
     {
+        public const string skillName = "LunarBow";
         public static float baseDuration = 0.42f;
         public static float procCoefficient = 1f;
         public static float firePercentTime = 1.0f;
@@ -22,7 +24,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
         public static float range = 256f;
         public static GameObject tracerEffectPrefab = FireLunarGuns.bulletTracerEffectPrefab;
 
-        public float damageCoefficient; 
+        public float damageCoefficient;
         private const float maxZoomFOV = 60f;
 
         private float totalDuration;
@@ -128,6 +130,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
         private void UpdateCameraRequest(CharacterCameraParamsData data, float removeDuration = 0.2f, float addDuration = 0.2f)
         {
+            return; // Remove zooms
             CameraTargetParams.CameraParamsOverrideRequest request = new CameraTargetParams.CameraParamsOverrideRequest
             {
                 cameraParamsData = data,
@@ -163,7 +166,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                 bulletCount = 1,
                 aimVector = aimRay.direction,
                 origin = aimRay.origin,
-                damage =  (characterBody.HasBuff(VoidHuntressBuffs.quickShot) ? VoidHuntressStatics.lunarBowFlurryDmgCoeff :  damageCoefficient) * damageStat,
+                damage = (characterBody.HasBuff(VoidHuntressBuffs.quickShot) ? VoidHuntressStatics.lunarBowFlurryDmgCoeff : damageCoefficient) * damageStat,
                 damageColorIndex = DamageColorIndex.Default,
                 damageType = DamageType.Generic,
                 falloffModel = BulletAttack.FalloffModel.None,
@@ -207,7 +210,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                 if (attackerBody != null)
                 {
                     m_voidState?.AddVoidMeter(VoidHuntressStatics.lunarBowVoidMeterGain);
-                    attackerBody.skillLocator.secondary.RunRecharge(VoidHuntressStatics.lunarBowAttackCDRInSeconds);
+                    attackerBody.skillLocator.utility.RunRecharge(VoidHuntressStatics.lunarBowAttackCDRInSeconds);
                 }
 
             }

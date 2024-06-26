@@ -4,10 +4,7 @@ using Henry2Mod.Characters.Survivors.VoidHuntress.Components;
 using Henry2Mod.Survivors.VoidHuntress;
 using RoR2;
 using RoR2.Orbs;
-using RoR2.Projectile;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -15,17 +12,18 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidGlaive : BaseState
     {
+        public const string skillName = "VoidGlaive";
         public static float baseDuration = 1f;
         public static float smallHopStrength;
         public static float antigravityStrength;
-        public static float damageCoefficient = 1.2f;
-        public static float damageCoefficientPerBounce = 1.1f;
+        public static float damageCoefficient = VoidHuntressStatics.voidGlaiveDmgCoeff;
+        public static float damageCoefficientPerBounce = 1f;
         public static float glaiveProcCoefficient = 1.0f;
-        public static float glaiveTravelSpeed = 40.0f;
+        public static float glaiveTravelSpeed = 80.0f;
         public static float glaiveBounceRange = 20f;
         public static string attackSoundString;
         public static int maxBounceCount = 4;
-        public static int glaiveThrownCount = 3;
+        public static int glaiveThrownCount = VoidHuntressStatics.voidGlaiveThrownCount;
 
         private float duration;
         private float stopwatch;
@@ -141,7 +139,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
                 lightningOrb.attacker = gameObject;
                 lightningOrb.procCoefficient = glaiveProcCoefficient;
                 lightningOrb.bouncesRemaining = maxBounceCount;
-                lightningOrb.speed = glaiveTravelSpeed;
+                lightningOrb.speed = glaiveTravelSpeed * (i + 1);
                 lightningOrb.bouncedObjects = new List<HealthComponent>();
                 lightningOrb.range = glaiveBounceRange;
                 lightningOrb.damageCoefficientPerBounce = damageCoefficientPerBounce;
@@ -149,7 +147,8 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 
                 if (hurtBox)
                 {
-                    m_voidState?.AddVoidMeter(VoidHuntressStatics.voidBowVoidMeterGain);
+                    m_voidState?.AddVoidMeter(VoidHuntressStatics.voidGlaiveVoidMeterGain);
+                    GrantBuff();
                     hasSuccessfullyThrownGlaive = true;
                     Transform transform = childLocator.FindChild("HandR");
                     EffectManager.SimpleMuzzleFlash(ThrowGlaive.muzzleFlashPrefab, gameObject, "HandR", true);
@@ -161,6 +160,11 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
             }
 
         }
+        private void GrantBuff()
+        {
+            characterBody.SetBuffCount(VoidHuntressBuffs.voidShot.buffIndex, Mathf.Min(VoidHuntressBuffs.voidShotMaxStacks, characterBody.GetBuffCount(VoidHuntressBuffs.voidShot) + 1));
+        }
+
 
         public override InterruptPriority GetMinimumInterruptPriority()
         {

@@ -8,6 +8,8 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
     public class VoidFlit : BaseSkillState
     {
+        public const string skillName = "VoidFlit";
+
         public static float totalDuration = 0.35f;
         public static float initialSpeedCoefficient = 5f;
         public static float finalSpeedCoefficient = 7.5f;

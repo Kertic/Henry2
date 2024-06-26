@@ -6,6 +6,7 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class ArrowFlurry : BaseSkillState
     {
+        public const string skillName = "ArrowFlurry";
 
         public static float damageCoefficient = VoidHuntressStatics.lunarBowDmgCoeff;
         public static float procCoefficient = 1f;

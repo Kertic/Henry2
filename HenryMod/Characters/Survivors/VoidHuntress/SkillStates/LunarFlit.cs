@@ -8,6 +8,9 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 {
     public class LunarFlit : BaseSkillState
     {
+        public const string skillName = "LunarFlit";
+
+
         public static float totalDuration = 1.5f;
         public static float minJumpCancelThresh = 0.6f;
         public static float minSprintCancelThresh = 0.1f;
@@ -70,7 +73,7 @@ namespace Henry2Mod.Survivors.VoidHuntress.SkillStates
 
             if (isAuthority)
             {
-                if (fixedAge >= minManualCancelTime && inputBank.skill2.justPressed)
+                if (fixedAge >= minManualCancelTime && inputBank.skill1.justPressed)
                 {
                     ExitBlink();// After we can manually cancel, we can hover at any point
                 }

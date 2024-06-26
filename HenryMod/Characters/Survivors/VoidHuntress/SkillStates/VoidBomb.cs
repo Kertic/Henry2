@@ -11,6 +11,9 @@ namespace Henry2Mod.Characters.Survivors.VoidHuntress.SkillStates
 {
     public class VoidBomb : GenericProjectileBaseState
     {
+        public const string skillName = "VoidBomb";
+
+
         public static float BaseDuration = 0.1f;
         //delays for projectiles feel absolute ass so only do this if you know what you're doing, otherwise it's best to keep it at 0
         public static float strikePointPercent = 0f;

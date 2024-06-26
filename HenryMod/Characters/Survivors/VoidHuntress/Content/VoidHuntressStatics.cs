@@ -6,7 +6,7 @@ namespace Henry2Mod.Survivors.VoidHuntress
     {
         public const float transitionDuration = 1.5f;
 
-        public const float lunarBowDmgCoeff = 8f;
+        public const float lunarBowDmgCoeff = 4f;
         public const float lunarBowFlurryDmgCoeff = lunarBowDmgCoeff * 0.25f;
         public const float lunarBowAttackCDRInSeconds = 1.0f;
         public const float lunarBowMovementSlowPenalty = 0.7f;
@@ -17,6 +17,10 @@ namespace Henry2Mod.Survivors.VoidHuntress
         public const float voidBowVoidMeterGain = 1.0f;
         public const float voidBowAttackCDRInSeconds = 1.0f;
         public const float voidMultishotDmgCoeff = voidBowDmgCoeff * 0.8f;
+
+        public const float voidGlaiveVoidMeterGain = 10.0f;
+        public const float voidGlaiveDmgCoeff = 2.0f;
+        public const int voidGlaiveThrownCount = 3;
 
         public const float bombVoidMeterGain = 25.0f;
         public const float bombDamageCoefficient = 16f;
